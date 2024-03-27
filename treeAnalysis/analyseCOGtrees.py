@@ -24,7 +24,7 @@ from io import StringIO
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--intrees")#list of trees
 parser.add_argument("-j", "--infolder") #location of trees
-parser.add_argument("-f", "--infile") #translation file
+parser.add_argument("-f", "--translationfile") #translation file
 parser.add_argument("-o", "--outfolder") #location for output files
 parser.add_argument("-s", "--stdout",default=1) #only plotting, write further output to stdout, thus next two are not needed. val = 1 or 0
 parser.add_argument("-g", "--outfile") #updated translation file
@@ -38,8 +38,8 @@ else:
     print("no inputtree given!\n")
     exit
 inputfile = ""
-if args.infile:
-    inputfile = args.infile
+if args.translationfile:
+    inputfile = args.translationfile
 else:
     print("no inputfile given!\n")
     exit
@@ -237,8 +237,8 @@ for line in file3:
             outline = "\t".join(trline)
             if write2stdout==0:
                 transupdate.write(outline+"\n")
-            else:
-                print(outline,"\n")
+            #else:
+                #print(outline,"\n")
             parts = tmpname.split('-')
             #        print(parts[1][0])
 
@@ -273,7 +273,7 @@ for line in file3:
         id=id+1
 
 
-    print(f'anodes: {len(anodes)}, bnodes: {len(bnodes)}')
+    #print(f'anodes: {len(anodes)}, bnodes: {len(bnodes)}')
 
     #iterate through splitsnodes and check which of the children will be cut, as the children have two distinct labels, we chose the one to keep by having the same label as the brother, thus we cut the other child
     cutnodes = []
