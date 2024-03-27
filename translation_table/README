@@ -6,3 +6,7 @@ The website lists available data as well as related publications.
 
 
 translation table is split in subparts to keep the files small.
+
+run
+cat cog-20.translation_cog* >> cog-20.all-translation.tsv
+to collect single files into one.

@@ -5,6 +5,9 @@ import argparse
 #to translate between protein ID and tax ID and domain (a/b)
 #to get the domain letter (a/b) check in input 3 using the taxid if it is ARCHAEA or BACTERIA
 
+#The input data has been downloaded in May 2021 from:
+#https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2020/data/
+
 #input cog-20.cog.csv
 #format: 
 #Columns:
