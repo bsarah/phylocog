@@ -27,7 +27,6 @@ parser.add_argument("-j", "--infolder") #location of trees
 parser.add_argument("-f", "--translationfile") #translation file
 parser.add_argument("-o", "--outfolder") #location for output files
 parser.add_argument("-s", "--stdout",default=1) #only plotting, write further output to stdout, thus next two are not needed. val = 1 or 0
-parser.add_argument("-g", "--outfile") #updated translation file
 parser.add_argument("-d", "--dvalues") #table including split and dvalues for each COG-tree in the input list
 args = parser.parse_args()
 
@@ -37,12 +36,14 @@ if args.intrees:
 else:
     print("no inputtree given!\n")
     exit
+
 inputfile = ""
 if args.translationfile:
     inputfile = args.translationfile
 else:
     print("no inputfile given!\n")
     exit
+
 inputfolder = ""
 if args.infolder:
     inputfolder = args.infolder
@@ -63,17 +64,6 @@ write2stdout = 0
 if args.stdout:
     write2stdout = int(args.stdout)
     
-
-outputfile = ""
-if args.outfile and write2stdout==0:
-    outputfile = args.outfile
-elif write2stdout==1:
-    print("output to stdout\n")
-else:
-    print("no outputfile given!\n")
-    exit
-
-
 outputtable = ""
 if args.dvalues and write2stdout==0:
     outputtable = args.dvalues
@@ -162,8 +152,6 @@ transupdate = None
 cogupdate = None
 header = "COGid\tnumA\tnumB\tnumTotal\tNumSplits\tavSupportSplits\tavSupportTree\tavDistAA\tavDistBB\tavDistAB\tDbar\tD\n"
 if write2stdout==0:
-    #translation file
-    transupdate = open(outputfile, 'a')
     #cogfile
     cogupdate = open(outputtable,'a')
     cogupdate.write(header)
@@ -232,13 +220,6 @@ for line in file3:
             tmpname = str(id)+'-'+taxid
             node.name = tmpname
             #update translation file
-            trline = protID2line[protid].split("\t")
-            trline[0] = tmpname
-            outline = "\t".join(trline)
-            if write2stdout==0:
-                transupdate.write(outline+"\n")
-            #else:
-                #print(outline,"\n")
             parts = tmpname.split('-')
             #        print(parts[1][0])
 
