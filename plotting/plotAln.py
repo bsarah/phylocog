@@ -3,6 +3,35 @@ import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 import matplotlib.colors as mcolors
+import argparse
+
+#input: clustered structure domain sequences (no alignment!)
+#this plot is only to visualize the structural domain composition of sequences
+#inside a COG
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--infile")#clustered structural domain sequences
+parser.add_argument("-o", "--outfile") #name for plot
+args = parser.parse_args()
+
+
+inputfile = ""
+if args.infile:
+    inputfile = args.infile
+else:
+    print("no inputfile given!\n")
+    exit
+
+
+outputfile = ""
+if args.outfile:
+    outputfile = args.outfile
+else:
+    print("no outputfile given!\n")
+    exit
+
+
+
 
 colordict = mcolors.CSS4_COLORS
 colordict.pop('black', None)
@@ -45,12 +74,11 @@ clus2ranges = dict() #clusid to [([a],[b],domid)] -> lists to calculate average 
 clus2maxend = dict() #clusid to max end cordinate
 domid2col = dict()
 domid2col["END"] = "black"
-ex_file = "/home/sarah/projects/cogupdate/dommap_parsing/debugging/debugCOG1036_list.txt"
 curclusid = -1
 curacc = 0
 curann = ""
 curcolid = 0 #to set unique colors
-with open(ex_file) as f:
+with open(inputfile) as f:
     for line in f:
         curline = line.strip()
         if(curline[0] == '>'): #id line
@@ -207,4 +235,5 @@ for (k,v) in clus2avranges.items():
         gnt.broken_barh([(curx, curlen)], (cury+1, 8), facecolors =curcol)
         gnt.text(s= c, x=curx+1, y=cury+3,color='black',size='xx-small', weight='bold')
 
-plt.show()
+#plt.show()
+plt.save(outputfile)
