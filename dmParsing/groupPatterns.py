@@ -155,7 +155,10 @@ class SSequence:
             curann = ""
             for (fid,low) in sorted_fid_by_low:
                 if(fid2ann[fid] != "END"):
-                    curann += fid2ann[fid]
+                    if(curann == ""):
+                        curann += f'{fid2ann[fid]}'
+                    else:
+                        curann += f'={fid2ann[fid]}'
             return curann
 
     def getFIDs(self):
@@ -572,7 +575,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
     starttuple = (0,0,"START")
     for cc in range(len(scluslist)):
         c = scluslist[cc] #current cluster 
-        idline = f'>ClusID {c.uid}; #Accessions {len(c.sseqs)}; Strutural_annotation {c.ann}\n'
+        idline = f'>ClusID {c.uid}; #Accessions {len(c.sseqs)}; Structural_annotation {c.ann}\n'
         if(c.ann == "END"):
             continue
         outf.write(idline)
@@ -582,9 +585,18 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
             if(s.acc in protID2geneid):
                 vstr += f'[{protID2geneid[s.acc]}]'
             vstr+=f' (0,0,START)'
-            for t in s.sdomlist: #t=sdomains, sorted by low
+            flatsdomlist = []
+            for t in s.sdomlist:
                 for (u,v) in t.subdoms:
-                    vstr+=f' ({u},{v},{t.fid})'
+                    flatsdomlist.append((u,v,t.fid))
+            sdomlistsorted = sorted(flatsdomlist, key = lambda x: x[0], reverse = False)
+            preup = 0 #previous up-value (right border)
+            for (u,v,fid) in sdomlistsorted:
+                curleft = u
+                if(curleft < preup):
+                    curleft = preup + 1
+                preup = v
+                vstr+=f' ({curleft},{v},{fid})'
             outf.write(f'{vstr}\n')
 
         #print(idline)
@@ -658,7 +670,7 @@ def sortRanges(propset, rangestr):
 
         low = subranges[0][0]
         up = subranges[-1][1]
-        cann = "".join(annlist)
+        cann = "=".join(annlist)
 
     return (cann, low, up, subranges)
 
