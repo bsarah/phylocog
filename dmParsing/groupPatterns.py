@@ -10,6 +10,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 parser = argparse.ArgumentParser(description="Cluster domain sequences")
 parser.add_argument("infile", help = "DM output file")
 parser.add_argument("-s", "--seqfile", help = "optional, fasta file with corresponding protein sequences")
+parser.add_argument("-t", "--transfile", help = "optional, translation file to translate between protein IDs and tax IDs as in the trees.")
 parser.add_argument("-o","--outname", help = "name for produced files as output")
 
 args = parser.parse_args()
@@ -29,6 +30,13 @@ if args.seqfile:
 #else:
 #    print("no fasta file given!\n")
 #    exit
+
+
+dotranslate = False
+translationfile = ""
+if args.transfile:
+    translationfile = args.transfile
+    dotranslate = True
 
 
 outputname = inputfile+".out"
@@ -547,7 +555,7 @@ def writetofileverbose(catlist, outputname, pid2length):
 
 
 
-def writeSClustofileverbose(scluslist, outputname, pid2length):
+def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
     outputfile = outputname+"_list.txt"
     outf = open(outputfile,"a")
     #write mapping to accessions in a separate file that is easily parseable
@@ -571,6 +579,8 @@ def writeSClustofileverbose(scluslist, outputname, pid2length):
         for s in c.sseqs: #s=sseq
             #we have to write down all the SSequences per cluster
             vstr = str(s.acc)
+            if(s.acc in protID2geneid):
+                vstr += f'[{protID2geneid[s.acc]}]'
             vstr+=f' (0,0,START)'
             for t in s.sdomlist: #t=sdomains, sorted by low
                 for (u,v) in t.subdoms:
@@ -667,6 +677,25 @@ if(doseqlen):
     pid2length = readFasta(sequencefile)
 #create END SDomains for each category which show the average sequence length
 #set fid = END and map a certain color (black?) to the end sdomain
+
+
+protID2geneid = dict()
+#protID2line = dict()
+
+if(dotranslate):
+    file1 = open(translationfile, 'r')
+    inlines = file1.readlines()
+
+    for line in inlines:
+        line2 = line.rstrip()
+        cols = line2.split("\t")
+        protID2geneid[cols[3]] = cols[0]
+        #protID2line[cols[3]] = line2
+
+    file1.close()
+
+
+
 
 
 sdomlist = [] #number of sdomains, however accessions can appear several times
@@ -859,4 +888,4 @@ else:
 
     #NEXT
     #add some parameters to the plot in order to dynamically set the plot size
-    writeSClustofileverbose(scluslist,outputname,pid2length)
+    writeSClustofileverbose(scluslist,outputname,pid2length,protID2geneid)

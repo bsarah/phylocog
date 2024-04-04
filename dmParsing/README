@@ -5,6 +5,11 @@ COG1036	77	109	78(71.56%)	15(13.76%)	0(0.00%)	16(14.68%)	14	109	77
 output file: COG1036_patterns.txt_list.txt
 
 
+python3 groupPatterns.py -s ../../COG2020_data/cog2020/COG1036.fa -t ../../translation_table/cog-20.translation_2303.tsv -o COG1036_patterns_taxid.txt ../../dommap_output/COG1036_ecodf.dommap.out
+
+
+
+
 python3 groupPatterns.py -s ../../COG2020_data/cog2020/COG1059.fa -o COG1036_patterns.txt ../../dommap_output/COG1059_ecodf.dommap.out 
 COG1059	60	61	61(100.0%)	0(0.00%)	0(0.00%)	0(0.00%)	3	61	60
 
