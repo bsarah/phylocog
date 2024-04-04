@@ -1,12 +1,11 @@
 # phylocog
 Pipeline to create sequence and structure alignments for protein sequences and corresponding phylogenetic trees
 
-Given:
-- protein sequences of orthologous proteins (COGs)
+Given: protein sequences of orthologous proteins (COGs, https://www.ncbi.nlm.nih.gov/research/cog-project/)
 
 Steps:
 
-- sequence based:
+- (S) sequence based:
 
 -> (S1) create MSAs for each COG (MAFFT L-INS-I, https://mafft.cbrc.jp/alignment/software/)
 
@@ -18,7 +17,7 @@ Steps:
 
 
 
-- structure domain based:
+- (D) structure domain based:
 
 -> (D1) scan protein sequences for ECOD (http://prodata.swmed.edu/ecod/) domains (hmmscan, hmmer.org)
 
@@ -28,7 +27,7 @@ Steps:
 
 -> (D3b) plot structural domain composition (phylocog/plotting)
 
--> (D4) pairwise alignment (dNWA, see github.com/blaueste/bachelor_thesis)
+-> (D4) pairwise alignment (dNWA, see https://github.com/blaueste/bachelor_thesis)
 
 -> (D5) construction of phylogenetic trees (Feng-Doolittle: phylocog/aln2tree)
 
@@ -37,4 +36,4 @@ Steps:
 -> (D7/S4) plot trees (ete3, phylocog/treeAnalysis)
 
 
-- comparison of S-trees and D-trees
+- (C) comparison of S-trees and D-trees
