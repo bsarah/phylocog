@@ -516,7 +516,7 @@ def writetofileverbose(catlist, outputname, pid2length):
     for cc in range(len(catlist)):
         c = catlist[cc] 
         acc2ll = dict()
-        idline = f'>ClusID {c.cid}; #Accessions {len(c.accs)}; Strutural_annotation {c.ann}\n'
+        idline = f'>ClusID {c.cid}; #Accessions {len(c.accs)}; Structural_annotation {c.ann}\n'
         if(c.ann == "END"):
             continue
         for s in c.cluslist: #s=cluster
