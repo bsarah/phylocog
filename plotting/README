@@ -1,0 +1,6 @@
+plot composition pattern of structural domains of the sequences of one COG
+
+python3 plotAln.py -i ../dmParsing/COG1059_patterns.txt_list.txt -o COG1059_patterns.pdf
+
+
+python3 plotAln.py -i ../dmParsing/COG1036_patterns.txt_list.txt -o COG1036_patterns.pdf

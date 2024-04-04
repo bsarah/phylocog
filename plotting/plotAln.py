@@ -92,7 +92,7 @@ with open(inputfile) as f:
             #annotation
             cs2 = cs[2].split(" ")
             curann = cs2[-1]
-            clusid2label[curclusid] = f'{curclusid}:{curacc}:{curann}'
+            clusid2label[curclusid] = f'#{curclusid}:{curacc}x:{curann}'
         else: #line describing one sequence
             dseq = curline.split(" ")[2:] #this is the domain sequence including end but without start
             #print(dseq)
@@ -146,7 +146,7 @@ with open(inputfile) as f:
                         curcolid+=1          
                 clus2ranges[curclusid] = newdlist
 
-print(domid2col)
+#print(domid2col)
 
 
 
@@ -161,9 +161,9 @@ print(domid2col)
 
 ends_sorted = sorted(clus2maxend.items(),key=lambda x: x[1])
 maxlim = ends_sorted[-1][1][0]
-print(maxlim)
+#print(maxlim)
 numclus = len(ends_sorted)
-print(numclus)
+#print(numclus)
 
 clus2avranges = dict() #take the average in case of 
 for (clusid,v) in clus2ranges.items():
@@ -174,20 +174,20 @@ for (clusid,v) in clus2ranges.items():
         newv.append((avxs,avys,z))
     clus2avranges[clusid] = newv
 
-print(len(clus2avranges.items()))
+#print(len(clus2avranges.items()))
 
 
 # Declaring a figure "gnt"
 fig, gnt = plt.subplots()
  
 # Setting Y-axis limits
-gnt.set_ylim(0, numclus*10+10)
+gnt.set_ylim(0, numclus*10+5)
  
 # Setting X-axis limits
-gnt.set_xlim(0, maxlim+20)
+gnt.set_xlim(0, maxlim+30)
  
 # Setting labels for x-axis and y-axis
-gnt.set_xlabel('sequence length')
+gnt.set_xlabel('Sequence length')
 gnt.set_ylabel('Cluster')
 
 ytickpos = []
@@ -197,43 +197,54 @@ for i in range (0,numclus):
     ytickpos.append(curpos)
     yticklabs.append(clusid2label[i])
 
-print(ytickpos)
-print(yticklabs)
+#print(ytickpos)
+#print(yticklabs)
 
 # Setting ticks on y-axis
 gnt.set_yticks(ytickpos)
 # Labelling tickes of y-axis
-gnt.set_yticklabels(yticklabs)
+gnt.set_yticklabels(yticklabs, fontsize=4)
 
 # Setting graph attribute
 gnt.grid(True)
+gnt.set_axisbelow(True)
+#gnt.yaxis.grid(color='gray', linestyle='dashed')
 
-
+lineoffset = 0
 
 #plot END markers
 curcol = domid2col["END"]
 
 for (k,v) in clus2maxend.items():
-    cury = k*10+5
+    cury = k*10+lineoffset
     curx = v[0]
     #gnt.broken_barh([(xcoord, length fo bar)], (ycoord, height of bar), facecolors =color)
     gnt.broken_barh([(curx, 20)], (cury+1, 8), facecolors =curcol)
-    gnt.text(s= "END", x=v[0]+1, y=cury+3,color='white',size='xx-small', weight='bold')
+    gnt.text(s= "END", x=v[0]+6, y=cury+4.5,color='white', weight='bold',fontsize=4)
 
 #plot 
 for (k,v) in clus2avranges.items():
-    cury = k*10+5
-    for (a,b,c) in v:
-        print(f'{a},{b},{c}')
+    cury = k*10+lineoffset
+    offset = 3
+    count = 0
+    #sort v
+    sortedV = sorted(v , key=lambda x: x[0])
+    for (a,b,c) in sortedV:
+        count+=1
+#        print(f'{a},{b},{c}')
         if c in domid2col:
             curcol = domid2col[str(c)]
         else:
             print(f'{c} not in domid2col')
-        print(curcol)
+        #print(curcol)
         curx = a
         curlen = b-a
         gnt.broken_barh([(curx, curlen)], (cury+1, 8), facecolors =curcol)
-        gnt.text(s= c, x=curx+1, y=cury+3,color='black',size='xx-small', weight='bold')
+        if(count % 2 == 0):
+            offset = 6
+        else:
+            offset = 3
+        gnt.text(s= c, x=curx+1, y=cury+offset,color='black', weight='bold',fontsize=4)
 
 #plt.show()
-plt.save(outputfile)
+plt.savefig(outputfile,bbox_inches = "tight")
