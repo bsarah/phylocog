@@ -7,19 +7,34 @@ Given:
 Steps:
 
 - sequence based:
--- S1 create MSAs for each COG (MAFFT L-INS-I)
--- S2 create rooted phylogenetic trees (FastTree)
--- S3 calculate splits and D-values (modified Fitch)
--- S4 plot trees (ete3)
+
+-> (S1) create MSAs for each COG (MAFFT L-INS-I, https://mafft.cbrc.jp/alignment/software/)
+
+-> (S2) create rooted phylogenetic trees (FastTree, http://meta.microbesonline.org/fasttree/)
+
+-> (S3/D6) calculate splits and D-values (modified Fitch:phylocog/treeAnalysis)
+
+-> (S4/D7) plot trees (ete3, phylocog/treeAnalysis)
+
+
 
 - structure domain based:
--- D1 scan protein sequences for ECOD domains (hmmscan)
--- D2 map structural domains to sequences (DomainMapper)
--- D3 parse DomainMapper output (dommap-parsing)
--- D4 pairwise alignment (dNWA)
--- D5 construction of phylogenetic trees (Feng-Doolittle)
--- D6 calculation of splits and D-values (modified Fitch)
--- D7 plot trees (ete3)
+
+-> (D1) scan protein sequences for ECOD (http://prodata.swmed.edu/ecod/) domains (hmmscan, hmmer.org)
+
+-> (D2) map structural domains to sequences (DomainMapper, https://onlinelibrary.wiley.com/doi/pdf/10.1002/pro.4465)
+
+-> (D3) parse DomainMapper output (phylocog/dmParsing)
+
+-> (D3b) plot structural domain composition (phylocog/plotting)
+
+-> (D4) pairwise alignment (dNWA, see github.com/blaueste/bachelor_thesis)
+
+-> (D5) construction of phylogenetic trees (Feng-Doolittle: phylocog/aln2tree)
+
+-> (D6/S3) calculation of splits and D-values (modified Fitch: phylocog/treeAnalysis)
+
+-> (D7/S4) plot trees (ete3, phylocog/treeAnalysis)
 
 
 - comparison of S-trees and D-trees
