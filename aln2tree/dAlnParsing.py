@@ -9,6 +9,8 @@ import math
 from skbio import DistanceMatrix
 from skbio.tree import nj
 from skbio.tree import TreeNode
+#from skbio.tree import read
+
 import re
 
 import warnings
@@ -43,7 +45,7 @@ distmatfile = ""
 if args.distmat:
     distmatfile = args.distmat
 else:
-    print("no fasta file given!\n")
+    print("no file for distance matrix given!\n")
     exit
 
 transfile = ""
@@ -245,7 +247,7 @@ def scoringFun(i,j):
     return score
 
 
-def calcDistMat(id2aln, id2selfaln, protID2geneid):
+def calcDistMat(id2aln, id2selfaln):
     #create distance matrix for pairs of IDs in id2selfaln
     #calculation based on Feng-Doolittle algorithm
     #https://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Feng-Doolittle
@@ -339,6 +341,7 @@ def calcDistMat(id2aln, id2selfaln, protID2geneid):
     #    print(newick_str[:55], "...")
     outt = open(treeprotname,"w")
     outt.write(newick_str)
+    outt.close()
     return newick_str
     #print(newick_str)
     #in a different script?
@@ -352,6 +355,7 @@ def calcDistMat(id2aln, id2selfaln, protID2geneid):
 #-create distance matrix?
 
 def reformat(protid2geneid):
+    print(f'read from file {treeprotname}')
     pretree = read(treeprotname, format="newick", into=TreeNode)
     pretree.bifurcate()
 
@@ -465,7 +469,7 @@ def main():
     protID2geneid = dict()
     protID2line = dict()
     
-    file1 = open(inputfile, 'r')
+    file1 = open(transfile, 'r')
     inlines = file1.readlines()
     
     for line in inlines:
