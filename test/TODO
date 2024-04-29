@@ -1,0 +1,13 @@
+
+
+
+TODO:
+- make sure that single structural domains are well sorted and their coordinates do not overlap in order to get a proper alignment
+- when adapting/resorting for the alignment, the structural annoation will be kept, thus the order may be different due to insertional domains. but this won't affect the alignment/tree building
+
+- idea: use splits tree to compare trees: hence, we need newick files for the structure and sequence trees with the same identifiers for the nodes, but no '[' in the identifiers!!!
+- change format/programs to produce trees that work well
+
+
+- SplitsTree App installed on rotomi, paste both newick trees in the input editor and let it display by tanglegram
+
