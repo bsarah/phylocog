@@ -1,1 +1,61 @@
-- analyse given tree in newick file
+- analyse given tree in newick file and create plot
+
+ete3 needed, use conda/mamba environment
+
+
+STRUCTURE trees:
+python3 analyseCOGtrees.py -i treetaxid-list.txt -j ../aln2tree/ -o ../examples/structure/
+
+Output on stdout:
+
+no translation file given, assume trees with taxids!
+
+output to stdout
+
+COGid	numA	numB	numTotal	NumSplits	avSupportSplits	avSupportTree	avDistAA	avDistBB	avDistAB	Dbar	D
+
+COG1036
+/home/sarah/projects/cogupdate/phylocog/aln2tree/COG1036protid.newick
+plotting..
+calculate pairwise distances..
+COG1036	41	36	77	8	0.5	0.0	0.33736322439024374	0.2147645301587301	0.31824096205962055	0.8674680829514586	0.6748487962353986
+
+COG1059
+/home/sarah/projects/cogupdate/phylocog/aln2tree/COG1059protid.newick
+plotting..
+calculate pairwise distances..
+COG1059	25	35	60	14	0.7142857142857143	0.0	0.11425804000000009	0.4352189411764705	0.30064401028571425	0.9138332419366683	0.3800442918899865
+
+COG1110
+/home/sarah/projects/cogupdate/phylocog/aln2tree/COG1110protid.newick
+plotting..
+calculate pairwise distances..
+COG1110	61	23	84	8	0.125	0.0	0.20422320000000027	0.0762528537549407	0.14892980114041346	0.9416384484744714	0.5120053419197698
+
+
+
+SEQUENCE trees:
+
+python3 analyseCOGtrees.py -i ../examples/sequence/seqtreelist.txt -j ../examples/sequence/ -f ../../translation_table/cog-20.translation_2303.tsv -o ../examples/sequence/ 
+output to stdout
+
+COGid	numA	numB	numTotal	NumSplits	avSupportSplits	avSupportTree	avDistAA	avDistBB	avDistAB	Dbar	D
+
+COG1036
+../examples/sequence//COG1036.newick
+plotting..
+calculate pairwise distances..
+COG1036	41	36	77	2	0.8395	0.7636578947368421	1.7410392926829272	1.7861699206349197	2.9549072425474234	0.5968392446520661	0.5892026888742465
+
+COG1059
+../examples/sequence//COG1059.newick
+plotting..
+calculate pairwise distances..
+COG1059	25	35	60	8	0.941875	0.6951355932203387	1.8104977333333319	2.644327226890755	2.4373615885714295	0.9138621411595972	0.7428104807356422
+
+COG1110
+../examples/sequence//COG1110.newick
+plotting..
+calculate pairwise distances..
+COG1110	61	23	84	2	0.994	0.8450722891566264	1.9475010928961751	1.6632829249011858	2.1460655238774056	0.841256703866519	0.7750382765089334
+

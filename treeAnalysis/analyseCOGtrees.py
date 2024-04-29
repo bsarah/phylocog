@@ -41,7 +41,7 @@ inputfile = ""
 if args.translationfile:
     inputfile = args.translationfile
 else:
-    print("no inputfile given!\n")
+    print("no translation file given, assume trees with taxids!\n")
     exit
 
 inputfolder = ""
@@ -117,10 +117,10 @@ def layout(node):
     if node.is_leaf():
         # Add node name to leaf nodes
         parts = node.name.split('-')
-        if(parts[1][0] == 'a' or "-a" in node.name):
+        if(parts[-1][0] == 'a' or "[a" in node.name):
             F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="red",bold=True)
             #N = AttrFace("name", fsize=30,fgcolor="red")
-        elif(parts[1][0] == 'b' or "-b" in node.name):
+        elif(parts[-1][0] == 'b' or "[b" in node.name):
             #N = AttrFace("name", fsize=30, fgcolor="blue")
             F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="blue",bold=True)
         else:
@@ -158,20 +158,22 @@ if write2stdout==0:
 else:
     print(header)
 
-#translation file
-protID2geneid = dict()
-protID2line = dict()
 
-file1 = open(inputfile, 'r')
-inlines = file1.readlines()
-
-for line in inlines:
-    line2 = line.rstrip()
-    cols = line2.split("\t")
-    protID2geneid[cols[3]] = cols[0]
-    protID2line[cols[3]] = line2
-
-file1.close()
+if args.translationfile:
+    #translation file
+    protID2geneid = dict()
+    protID2line = dict()
+    
+    file1 = open(inputfile, 'r')
+    inlines = file1.readlines()
+    
+    for line in inlines:
+        line2 = line.rstrip()
+        cols = line2.split("\t")
+        protID2geneid[cols[3]] = cols[0]
+        protID2line[cols[3]] = line2
+        
+    file1.close()
 
 
 curcog = ""
@@ -214,21 +216,29 @@ for line in file3:
         nname = node.name
         totnodes+=1
         if(node.is_leaf()):
-            protid = re.sub(r"\s+", '_', nname)
-            taxid = protID2geneid[protid]
-            #find taxid
-            tmpname = str(id)+'-'+taxid
-            node.name = tmpname
+            if(args.translationfile):
+                protid = re.sub(r"\s+", '_', nname)
+                taxid = protID2geneid[protid]
+                tmpname = str(id)+'-'+nname+'['+str(taxid)+']'
+                node.name = nname+'['+str(taxid)+']'
+            else:
+                sn = nname.split('[')
+                taxid = (sn[-1])[0:-1]
+                tmpname = str(id)+'-'+nname
+                node.name = nname
+
+            #node.name = tmpname
             #update translation file
             parts = tmpname.split('-')
-            #        print(parts[1][0])
+            #        print(parts[1][0]) #first letter of second part of node id
 
-            if(parts[1][0] == 'b' or "-b" in tmpname):
+            
+            if(parts[1][0] == 'b' or "[b" in tmpname):
                 bnodes.append(node.name)
-                nmarks[tmpname] = "b"
+                nmarks[node.name] = "b"
             else:
                 anodes.append(node.name)
-                nmarks[tmpname] = "a"
+                nmarks[node.name] = "a"
         else:
             if(node.is_root()):
                 tmpname = "r"+str(id)

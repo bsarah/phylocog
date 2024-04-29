@@ -1,0 +1,3 @@
+COG1036protid.newick
+COG1059protid.newick
+COG1110protid.newick

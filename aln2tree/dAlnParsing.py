@@ -24,8 +24,8 @@ parser.add_argument("infile", help = "dNWA output file")
 parser.add_argument("-f", "--translationfile", help="file to translate between protein IDs and tax IDs to distinguish between archaea and bacteria")
 parser.add_argument("-d", "--distmat", help = "optional, distance matrix output file, if given, the program will calculate the distance matrix")
 parser.add_argument("-o","--outfile", help = "output file for modified/simplified dNWA alignment")
-parser.add_argument("-t","--treefiletaxid", help = "output file for newick tree with tax IDs as labels")
-parser.add_argument("-p","--treefileprotid", help = "output file for newick tree with protein IDs as labels")
+#parser.add_argument("-t","--treefiletaxid", help = "output file for newick tree with tax IDs as labels")
+parser.add_argument("-p","--treefile", help = "output file for newick tree with IDs as labels")
 parser.add_argument('-v','--verbose', action='store_true')
 
 #add some parameters to change?
@@ -60,13 +60,14 @@ outputname = inputfile+".out"
 if args.outfile:
     outputname = args.outfile
 
+#in current versions of the previous steps, taxid and protid are merged
 treeprotname = inputfile+"protid.newick"
 if args.treefileprotid:
     treeprotname = args.treefileprotid
 
-treetaxname = inputfile+"taxid.newick"
-if args.treefiletaxid:
-    treetaxname = args.treefiletaxid
+#treetaxname = inputfile+"taxid.newick"
+#if args.treefiletaxid:
+#    treetaxname = args.treefiletaxid
 
     
 
@@ -495,7 +496,8 @@ def main():
     
     calcDistMat(id2aln, id2selfaln)
 
-    reformat(protID2geneid)
+    #reformatting is not necessary here
+    #reformat(protID2geneid)
     
 
 main()
