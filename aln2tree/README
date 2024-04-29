@@ -1,0 +1,6 @@
+Parse output of dAln (Neya's program) and calculate trees, write in newick file
+
+Output will be two newick files, one with taxids and one with protids that can both be plotted in the next step. Taxids contain (a/b) identifiers to see archaeal and bacterial proteins. Sequence based trees are also labeled with taxids, hence, they are comparable.
+
+#using -v (verbose) parameter will output warnings
+python3 dAlnParsing.py -v -f ../../translation_table/cog-20.translation_2303.tsv -o alignmentCOG1110-reformatted.txt -t COG1110taxid.newick -p COG1110protid.newick ../examples/dNWA_output/alignments_COG1110_patterns_taxid.txt_list.txt

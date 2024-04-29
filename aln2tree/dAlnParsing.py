@@ -26,6 +26,7 @@ parser.add_argument("-d", "--distmat", help = "optional, distance matrix output 
 parser.add_argument("-o","--outfile", help = "output file for modified/simplified dNWA alignment")
 parser.add_argument("-t","--treefiletaxid", help = "output file for newick tree with tax IDs as labels")
 parser.add_argument("-p","--treefileprotid", help = "output file for newick tree with protein IDs as labels")
+parser.add_argument('-v','--verbose', action='store_true')
 
 #add some parameters to change?
 #alpha/beta for the Feng-Doolittle algorithm?
@@ -316,14 +317,16 @@ def calcDistMat(id2aln, id2selfaln):
         #distance: D(a,b) = -ln (Seff(a,b)*f)  --with f =1
         #Seff(a,b) = (S(a,b)-Srand(a,b))/(Smax(a,b)-Srand(a,b))
         #what do we do if Sab < 0?
-        if(Sab<0):
-            print(f'Sab {Sab} < 0')
+        if(Sab<0 and args.verbose):
+            print(f'Sab {Sab} < 0 for k:{k}')
             Sab = 0.00001
         Seff = (Sab-Srand)/(Smax-Srand)
         #print(f'{Seff}')
-        if(Seff < 0):
+        if(Seff < 0 and args.verbose):
             print(f'neg seff {Seff} for {sa} and {sb} ({k}): srand: {Srand}, lenab:{lenab}, smax: {Smax}, sab: {Sab}, saa: {saa}, sbb: {sbb}, lensa:{lensa}, lensb:{lensb}, gapsab: {gapsa},{gapsb}, totsum:{totsum}')
         Sdist = -1 * math.log(Seff)
+        if(Sdist < 0 and args.verbose):
+            print(f'Distance < 0: {Sdist} for k:{k}')
 #        print(f'eff score and distance for {ks[1]} and {ks[3]}: {Seff}, {Sdist}')
         #test tree
         kid1 = idlist.index(ks[1])
@@ -336,7 +339,7 @@ def calcDistMat(id2aln, id2selfaln):
         print("write distance matrix to file")
     
     tree = nj(dm)
-    print(tree.ascii_art())
+    #print(tree.ascii_art())
     newick_str = nj(dm, result_constructor=str)
     #    print(newick_str[:55], "...")
     outt = open(treeprotname,"w")
@@ -356,9 +359,19 @@ def calcDistMat(id2aln, id2selfaln):
 
 def reformat(protid2geneid):
     print(f'read from file {treeprotname}')
-    pretree = read(treeprotname, format="newick", into=TreeNode)
+    pretree = TreeNode.read(treeprotname, format="newick")
     pretree.bifurcate()
 
+    id = 0
+    redcol = "#ff0000"
+    bluecol = "#0000ff"
+    blackcol = "#000000"
+    lab = "label"
+    fontspec = "normal"
+    fontsize = "1.5"
+    numarc = 0
+    numbac = 0
+    numx = 0
     
     for node in pretree.preorder():
         if(node.is_root()):
@@ -385,10 +398,10 @@ def reformat(protid2geneid):
             taxid = "xxxx"
             curcol = blackcol
             curdat = ["x"]
-            if(protid in protid2lines):
-                curline = protid2lines[protid]
-                curdat = curline.split("\t")
-                taxid = curdat[0]
+            if(protid in protid2geneid):
+                taxid = protid2geneid[protid]
+                #curdat = curline.split("\t")
+                #taxid = curdat[0]
                 curcol = blackcol
                 if(taxid[0] == 'a'):
                     numarc = numarc+1
