@@ -583,7 +583,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
             #we have to write down all the SSequences per cluster
             vstr = str(s.acc)
             if(s.acc in protID2geneid):
-                vstr += f'[{protID2geneid[s.acc]}]'
+                vstr += f'-{protID2geneid[s.acc]}'
             vstr+=f' (0,0,START)'
             flatsdomlist = []
             for t in s.sdomlist:
