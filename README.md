@@ -11,6 +11,8 @@ Steps:
 
 -> (S2) create rooted phylogenetic trees (FastTree, http://meta.microbesonline.org/fasttree/)
 
+-> (S2b) reformat tree to have protIDs and taxIDs on each node
+
 -> (S3/D6) calculate splits and D-values (modified Fitch:phylocog/treeAnalysis)
 
 -> (S4/D7) plot trees (ete3, phylocog/treeAnalysis)

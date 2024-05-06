@@ -7,7 +7,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-parser = argparse.ArgumentParser(description="Cluster domain sequences")
+parser = argparse.ArgumentParser(description="Separate domain sequences into groups of patterns")
 parser.add_argument("infile", help = "DM output file")
 parser.add_argument("-s", "--seqfile", help = "optional, fasta file with corresponding protein sequences")
 parser.add_argument("-t", "--transfile", help = "optional, translation file to translate between protein IDs and tax IDs as in the trees.")
@@ -203,7 +203,7 @@ class SClus:
 #        self.num11map = 0 #domains that are added and map 1:1
 #        self.num1nmap = 0 #domains that are added and map 1:n
         #summarize ranges for subdomains into average ranges to be plotted
-        #all domains in the cluster should have the same number of subdomains with overlapping ranges
+        #all domains with the same pattern should have the same number of subdomains with overlapping ranges
         self.avsubranges = []
         self.fids = []
         numsubdoms = len(self.sseqs[0].sdomlist)
@@ -527,7 +527,7 @@ def writetofileverbose(catlist, outputname, pid2length):
     for cc in range(len(catlist)):
         c = catlist[cc] 
         acc2ll = dict()
-        idline = f'>ClusID {c.cid}; #Accessions {len(c.accs)}; Structural_annotation {c.ann}\n'
+        idline = f'>PatternID {c.cid}; #Accessions {len(c.accs)}; Structural_annotation {c.ann}\n'
         if(c.ann == "END"):
             continue
         for s in c.cluslist: #s=cluster
