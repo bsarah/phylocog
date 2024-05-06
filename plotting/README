@@ -1,6 +1,16 @@
 plot composition pattern of structural domains of the sequences of one COG
 
-python3 plotAln.py -i ../dmParsing/COG1059_patterns.txt_list.txt -o COG1059_patterns.pdf
+python3 plotPattern.py -i ../dmParsing/COG1036_patterns_taxid.txt_list.txt -o COG1036_patterns.pdf
 
 
-python3 plotAln.py -i ../dmParsing/COG1036_patterns.txt_list.txt -o COG1036_patterns.pdf
+#legend for patterns:
+
+L = linear
+K = insertional
+M = circular permuted
+A = insertional circular permuted
+
+NC_X = non contiguous (part X)
+NI_X = non contiguous insertional (part X)
+NP_X = non contiguous circular permuted (part X)
+NB_X = non contiguous insertional circular permuted (part X)

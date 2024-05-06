@@ -24,6 +24,7 @@ Steps:
 -> (D2) map structural domains to sequences (DomainMapper, https://onlinelibrary.wiley.com/doi/pdf/10.1002/pro.4465)
 
 -> (D3) parse DomainMapper output (phylocog/dmParsing)
+ls
 
 -> (D3b) plot structural domain composition (phylocog/plotting)
 

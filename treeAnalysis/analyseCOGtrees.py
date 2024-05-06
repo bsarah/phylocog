@@ -117,10 +117,10 @@ def layout(node):
     if node.is_leaf():
         # Add node name to leaf nodes
         parts = node.name.split('-')
-        if(parts[-1][0] == 'a' or "[a" in node.name):
+        if(parts[-1][0] == 'a' or "-a" in node.name):
             F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="red",bold=True)
             #N = AttrFace("name", fsize=30,fgcolor="red")
-        elif(parts[-1][0] == 'b' or "[b" in node.name):
+        elif(parts[-1][0] == 'b' or "-b" in node.name):
             #N = AttrFace("name", fsize=30, fgcolor="blue")
             F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="blue",bold=True)
         else:
@@ -222,8 +222,8 @@ for line in file3:
                 tmpname = str(id)+'-'+nname+'['+str(taxid)+']'
                 node.name = nname+'['+str(taxid)+']'
             else:
-                sn = nname.split('[')
-                taxid = (sn[-1])[0:-1]
+                sn = nname.split('-')
+                taxid = sn[-1]
                 tmpname = str(id)+'-'+nname
                 node.name = nname
 
@@ -233,7 +233,7 @@ for line in file3:
             #        print(parts[1][0]) #first letter of second part of node id
 
             
-            if(parts[1][0] == 'b' or "[b" in tmpname):
+            if(parts[-1][0] == 'b' or "-b" in tmpname):
                 bnodes.append(node.name)
                 nmarks[node.name] = "b"
             else:

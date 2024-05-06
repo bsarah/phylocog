@@ -21,7 +21,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 parser = argparse.ArgumentParser(description="Parsing pairwise domain alignment output, calculation of pairwise distances and plotting")
 parser.add_argument("infile", help = "dNWA output file")
-parser.add_argument("-f", "--translationfile", help="file to translate between protein IDs and tax IDs to distinguish between archaea and bacteria")
+parser.add_argument("-f", "--translationfile", help="optional, file to translate between protein IDs and tax IDs to distinguish between archaea and bacteria")
 parser.add_argument("-d", "--distmat", help = "optional, distance matrix output file, if given, the program will calculate the distance matrix")
 parser.add_argument("-o","--outfile", help = "output file for modified/simplified dNWA alignment")
 #parser.add_argument("-t","--treefiletaxid", help = "output file for newick tree with tax IDs as labels")
@@ -53,7 +53,7 @@ transfile = ""
 if args.translationfile:
     transfile = args.translationfile
 else:
-    print("no translation file given!\n")
+    print("no translation file given, assume already translated IDs!\n")
     exit
 
 outputname = inputfile+".out"
@@ -61,9 +61,9 @@ if args.outfile:
     outputname = args.outfile
 
 #in current versions of the previous steps, taxid and protid are merged
-treeprotname = inputfile+"protid.newick"
-if args.treefileprotid:
-    treeprotname = args.treefileprotid
+treeprotname = inputfile+"prot-tax.newick"
+if args.treefile:
+    treeprotname = args.treefile
 
 #treetaxname = inputfile+"taxid.newick"
 #if args.treefiletaxid:
@@ -482,17 +482,18 @@ def main():
     #translation file
     protID2geneid = dict()
     protID2line = dict()
+
+    if(args.translationfile):
+        file1 = open(transfile, 'r')
+        inlines = file1.readlines()
     
-    file1 = open(transfile, 'r')
-    inlines = file1.readlines()
-    
-    for line in inlines:
-        line2 = line.rstrip()
-        cols = line2.split("\t")
-        protID2geneid[cols[3]] = cols[0]
-        protID2line[cols[3]] = line2
+        for line in inlines:
+            line2 = line.rstrip()
+            cols = line2.split("\t")
+            protID2geneid[cols[3]] = cols[0]
+            protID2line[cols[3]] = line2
         
-    file1.close()
+        file1.close()
     
     calcDistMat(id2aln, id2selfaln)
 

@@ -73,7 +73,7 @@ clusid2label = dict()
 clus2ranges = dict() #clusid to [([a],[b],domid)] -> lists to calculate average later
 clus2maxend = dict() #clusid to max end cordinate
 domid2col = dict()
-domid2col["END"] = "black"
+domid2col["END"] = "gray"
 curclusid = -1
 curacc = 0
 curann = ""
@@ -188,7 +188,7 @@ gnt.set_xlim(0, maxlim+30)
  
 # Setting labels for x-axis and y-axis
 gnt.set_xlabel('Sequence length')
-gnt.set_ylabel('Cluster')
+gnt.set_ylabel('Pattern')
 
 ytickpos = []
 yticklabs = []
