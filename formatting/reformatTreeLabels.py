@@ -65,10 +65,10 @@ for node in pretree.preorder():
     if(node.is_tip()): #leaves
         protids = node.name.split(' ')
         protid = '_'.join(protids)
-        print(f'node name {node.name}')
-        print(f'protid {protid}')
+        #print(f'node name {node.name}')
+        #print(f'protid {protid}')
         if(protid in protid2treeid):
-            print(f'{protid2treeid[protid]}')
+            #print(f'{protid2treeid[protid]}')
             node.name = str(protid2treeid[protid])
 
 #outfile.write(str(pretree))
