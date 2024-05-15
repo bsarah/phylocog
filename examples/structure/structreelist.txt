@@ -1,0 +1,3 @@
+COG1036-pattern-gapex.newick
+COG1059-pattern-gapex.newick
+COG1110-pattern-gapex.newick
