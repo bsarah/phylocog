@@ -1,1 +1,1 @@
-COG1036prot-tax.newick
+COG1110-sequence-protid-taxid.newick
