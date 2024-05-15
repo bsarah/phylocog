@@ -32,7 +32,7 @@ ls
 
 -> (D4) pairwise alignment (dNWA, see https://github.com/blaueste/bachelor_thesis)
 
--> (D5) construction of phylogenetic trees (Feng-Doolittle: phylocog/aln2tree)
+-> (D5) construction of phylogenetic trees (Feng-Doolittle (e.g. https://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Feng-Doolittle): phylocog/aln2tree)
 
 -> (D6/S3) calculation of splits and D-values (modified Fitch: phylocog/treeAnalysis)
 

@@ -1,6 +1,13 @@
 - analyse given tree in newick file and create plot
 
+
 ete3 needed, use conda/mamba environment
+
+conda activate ete3
+#to run remotely, deactivate Xserver
+export QT_QPA_PLATFORM=offscreen
+export XDG_RUNTIME_DIR=/tmp/runtime-runner
+
 
 
 STRUCTURE trees:
