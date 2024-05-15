@@ -1,1 +1,1 @@
-COG1110-sequence-protid-taxid.newick
+struc05_COG1110-prot-tax-gapex.newick
