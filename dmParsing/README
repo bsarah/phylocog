@@ -9,3 +9,6 @@ COG1059	60	61	61(100.0%)	0(0.00%)	0(0.00%)	0(0.00%)	3	61	60
 python3 groupPatterns.py -s ../../COG2020_data/cog2020/COG1110.fa -t ../../translation_table/cog-20.translation_2303.tsv -o COG1110_patterns_taxid.txt ../../dommap_output/COG1110_ecodf.dommap.out
 COG1110	84	397	179(45.09%)	130(32.75%)	0(0.00%)	88(22.17%)	63	396	84
 
+
+#parse several DMoutput files at once
+ python3 parseDMfiles.py -i ../../dommap_output/cogdmlist5.txt -f ../../dommap_output -s ../../COG2020_data/cog2020/cogfalist5.txt -g ../../COG2020_data/cog2020 -o DMparsing -p /home/sarah/projects/cogupdate/dommap_parsing/dmParse_cog5 -t ../../translation_table/cog-20.translation_2303.tsv >> /home/sarah/projects/cogupdate/dommap_parsing/outtable_cogdmparsing5.tsv
