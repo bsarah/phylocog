@@ -116,11 +116,11 @@ def labcount(ls,nodename):
 def layout(node):  
     if node.is_leaf():
         # Add node name to leaf nodes
-        parts = node.name.split('-')
-        if(parts[-1][0] == 'a' or "-a" in node.name):
+        #parts = node.name.split('-')
+        if("-a" in node.name):
             F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="red",bold=True)
             #N = AttrFace("name", fsize=30,fgcolor="red")
-        elif(parts[-1][0] == 'b' or "-b" in node.name):
+        elif("-b" in node.name):
             #N = AttrFace("name", fsize=30, fgcolor="blue")
             F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="blue",bold=True)
         else:
@@ -219,21 +219,20 @@ for line in file3:
             if(args.translationfile):
                 protid = re.sub(r"\s+", '_', nname)
                 taxid = protID2geneid[protid]
-                tmpname = str(id)+'-'+nname+'['+str(taxid)+']'
-                node.name = nname+'['+str(taxid)+']'
+                tmpname = str(id)+'-'+nname+'-'+str(taxid)
+                node.name = nname+'-'+str(taxid)
             else:
                 sn = nname.split('-')
-                taxid = sn[-1]
                 tmpname = str(id)+'-'+nname
                 node.name = nname
 
             #node.name = tmpname
             #update translation file
-            parts = tmpname.split('-')
+            #parts = tmpname.split('-')
             #        print(parts[1][0]) #first letter of second part of node id
 
             
-            if(parts[-1][0] == 'b' or "-b" in tmpname):
+            if("-b" in tmpname):
                 bnodes.append(node.name)
                 nmarks[node.name] = "b"
             else:
