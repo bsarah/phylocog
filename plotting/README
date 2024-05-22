@@ -14,3 +14,9 @@ NC_X = non contiguous (part X)
 NI_X = non contiguous insertional (part X)
 NP_X = non contiguous circular permuted (part X)
 NB_X = non contiguous insertional circular permuted (part X)
+
+
+#plot tree with label colors based on the domain patterns
+#conda env ete3, shut down Xserver (see README analyseCOGtrees.py)
+
+python3 plotPatternTree.py -i ../aln2tree/COG1036prot-tax-pat.newick -o COG1036_patterntree.pdf

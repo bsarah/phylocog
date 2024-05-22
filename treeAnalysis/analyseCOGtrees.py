@@ -1,4 +1,4 @@
-from ete3 import Tree, TreeStyle, NodeStyle, faces, AttrFace, CircleFace, TextFace, add_face_to_node
+from ete3 import Tree, TreeStyle, NodeStyle, faces, AttrFace, CircleFace, TextFace, add_face_to_node, SVG_COLORS
 import re
 import pandas as pd
 import argparse
