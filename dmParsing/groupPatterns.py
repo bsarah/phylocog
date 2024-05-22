@@ -575,7 +575,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
     starttuple = (0,0,"START")
     for cc in range(len(scluslist)):
         c = scluslist[cc] #current cluster 
-        idline = f'>ClusID {c.uid}; #Accessions {len(c.sseqs)}; Structural_annotation {c.ann}\n'
+        idline = f'>PatternID {c.uid}; #Accessions {len(c.sseqs)}; Structural_annotation {c.ann}\n'
         if(c.ann == "END"):
             continue
         outf.write(idline)
@@ -583,7 +583,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
             #we have to write down all the SSequences per cluster
             vstr = str(s.acc)
             if(s.acc in protID2geneid):
-                vstr += f'-{protID2geneid[s.acc]}'
+                vstr += f'-{protID2geneid[s.acc]}-P{c.uid}' #add patternID: pid = f'P{c.uid}'
             vstr+=f' (0,0,START)'
             flatsdomlist = []
             for t in s.sdomlist:
