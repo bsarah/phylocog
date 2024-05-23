@@ -97,12 +97,12 @@ def layout(node):
             else:
                 print(f'WARNING: no color for pid {pid} and node name {node.name}!')
             print(f'color {curcol}')
-            F = TextFace(node.name, tight_text=True, fsize=40, ftype="Arial", fgcolor=curcol,bold=True)
+            F = TextFace(node.name, tight_text=True, fsize=50, ftype="Arial", fgcolor=curcol,bold=True)
             faces.add_face_to_node(F, node, column=0, position="branch-right")
         else:
             print(f'WARNING: no patternID for node {node.name}')
     else:
-        F = TextFace(node.name, tight_text=True, fsize=40, ftype="Arial", fgcolor="black",bold=True)
+        F = TextFace(node.name, tight_text=True, fsize=50, ftype="Arial", fgcolor="black",bold=True)
         # Creates a sphere face whose size is proportional to node's
         # feature "weight"
         #C = CircleFace(radius=node.support*75, color="DarkGreen", style="sphere")
