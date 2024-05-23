@@ -76,7 +76,8 @@ colorlist.remove('aquamarine')
 colorlist.remove('bisque')
 colorlist.remove('blanchedalmond')
 colorlist.remove('lightpink')
-
+colorlist.remove('LightSteelBlue')
+colorlist.remove('LightSalmon')
 
 pid2col = dict()
 

@@ -3,3 +3,7 @@ reformat FastTree output: newick trees based on sequence alignments
 output: same labels as structure based trees in order to be able to compare them
 
  python3 reformatTreeLabels.py -i ../trees/cog2020_fftns_FastTree/COG1036.fa -j ../translation_table/cog-20.translation_2303.tsv -t COG1036-sequence-protid-taxid.newick
+
+
+#version using the pattern file
+python3 reformatTreeLabels.py -i ../../trees/cog2020_fftns_FastTree/COG1036.fa -p ../plotting/COG1036_patterns_taxid_patid.txt_list.txt -t COG1036-sequence-protid-taxid-patid.newick
