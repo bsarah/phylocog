@@ -87,8 +87,8 @@ def layout(node):
         # Add node name to leaf nodes
         if("-P" in node.name):
             nname = node.name
-            if('\'' in nname):
-                nname = nname[1:-1]
+#            if('\'' in nname):
+#                nname = nname[1:-1]
             sn = nname.split('-')
             pid = ""
             for snelem in sn:
@@ -96,7 +96,7 @@ def layout(node):
                     pid = snelem
             curcol = ""
             if(pid in pid2col):
-                curcol = pid2col[pid]
+                curcol = pid2col[pid]                
             else:
                 print(f'WARNING: no color for pid {pid} and node name {node.name}!')
 #            print(f'pid {pid} color {curcol} node name {node.name} nname {nname}')
@@ -156,6 +156,8 @@ for node in t.traverse("postorder"):
                     pid = snelem
             if pid not in pid2col:
                 pid2col[pid] = colorlist[curcolnum]
+                pidprime = pid+"'"
+                pid2col[pidprime] = colorlist[curcolnum]
                 curcolnum+=3
     
 
