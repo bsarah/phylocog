@@ -86,7 +86,10 @@ def layout(node):
     if node.is_leaf():
         # Add node name to leaf nodes
         if("-P" in node.name):
-            sn = node.name.split('-')
+            nname = node.name
+            if('\'' in nname):
+                nname = nname[1:-1]
+            sn = nname.split('-')
             pid = ""
             for snelem in sn:
                 if len(snelem) > 1 and snelem[0] == 'P':
@@ -96,7 +99,7 @@ def layout(node):
                 curcol = pid2col[pid]
             else:
                 print(f'WARNING: no color for pid {pid} and node name {node.name}!')
-            print(f'color {curcol}')
+#            print(f'pid {pid} color {curcol} node name {node.name} nname {nname}')
             F = TextFace(node.name, tight_text=True, fsize=50, ftype="Arial", fgcolor=curcol,bold=True)
             faces.add_face_to_node(F, node, column=0, position="branch-right")
         else:
@@ -141,6 +144,8 @@ curcolnum = 0
 #fill dict
 for node in t.traverse("postorder"):
     nname = node.name
+    if('\'' in nname):
+        nname = nname[1:-1]
     if(node.is_leaf()):
         #check Pid
         if("-P" in nname):
