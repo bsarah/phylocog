@@ -539,7 +539,7 @@ def writetofileverbose(catlist, outputname, pid2length):
                 if(sacc not in acc2ll):
                     acc2ll[sacc] = []
                     acc2ll[sacc].append(starttuple)
-                    acc2ll[sacc].append((endcoord,endcoord,"END"))
+                    acc2ll[sacc].append((endcoord,endcoord+10,"END"))
                 for (u,v) in t.subdoms:
                     acc2ll[sacc].append((u,v,t.fid))
         #sort ll by first tuple entry
@@ -566,30 +566,54 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
 
     #>artificial catID and number of sequences and structural domain annotation as in plot
     ##list of sequences contained:
-    #Accession [(0,0,START), (start,end,Fid)...(n,n,END)] :n = len(prot)
+    #Accession [(0,0,START), (start,end,Fid)...(n,n+10,END)] :n = len(prot)
     ##...
 
     #>artificial catID and number of sequences and structural domain annotation as in plot
-    #Accession [(0,0,START), (start,end,Fid)...(n,n,END)] :n = len(prot)
+    #Accession [(0,0,START), (start,end,Fid)...(n,n+10,END)] :n = len(prot)
     ##...
     starttuple = (0,0,"START")
     for cc in range(len(scluslist)):
-        c = scluslist[cc] #current cluster 
-        idline = f'>PatternID {c.uid}; #Accessions {len(c.sseqs)}; Structural_annotation {c.ann}\n'
+        c = scluslist[cc] #current pattern
         if(c.ann == "END"):
             continue
-        outf.write(idline)
+        annlist = c.ann.split('=')
+        correctannlist = []
+        curidx = 0
+        anndone = 0 #only needed for first sequence in pattern
+        
         for s in c.sseqs: #s=sseq
             #we have to write down all the SSequences per cluster
             vstr = str(s.acc)
             if(s.acc in protID2geneid):
                 vstr += f'-{protID2geneid[s.acc]}-P{c.uid}' #add patternID: pid = f'P{c.uid}'
+                #print(vstr)
             vstr+=f' (0,0,START)'
             flatsdomlist = []
             for t in s.sdomlist:
                 for (u,v) in t.subdoms:
                     flatsdomlist.append((u,v,t.fid))
+                    #print(t.fid)
+                    if not anndone:
+                        if(t.fid != "END"):
+                            correctannlist.append((u,annlist[curidx]))
+                            #print(f'u {u} curidx {curidx} ann {annlist[curidx]}')
+                            curidx+=1
             sdomlistsorted = sorted(flatsdomlist, key = lambda x: x[0], reverse = False)
+            if not anndone:
+                correctannlistsorted = sorted(correctannlist, key = lambda x: x[0], reverse = False)
+                #print(f'corrected sorted annlist {correctannlistsorted}')
+                #collect corrected annotation
+                newann = ""
+                for (spos,a) in correctannlistsorted:
+                    if newann == "":
+                        newann = newann+str(a)
+                    else:
+                        newann = newann+"="+str(a)
+                idline = f'>PatternID {c.uid}; #Accessions {len(c.sseqs)}; Structural_annotation {newann}\n'
+                #print(idline)
+                outf.write(idline)
+                anndone=1
             preup = 0 #previous up-value (right border)
             for (u,v,fid) in sdomlistsorted:
                 curleft = u
@@ -824,7 +848,7 @@ for (acc,sdlist) in acc2sdoms.items():
             lena = pid2length[acc]
         else:
             print(f'WARNING: {acc} not in pid2length, is it in fasta?\n')
-        endomain = SDomain("END", acc, lena-5, lena+5, "END", 0, [(lena-5,lena+5)], 1, "END")
+        endomain = SDomain("END", acc, lena, lena+10, "END", 0, [(lena,lena+10)], 1, "END")
         sdlist.append(endomain)
     sseq = SSequence(sdlist,ssid)
     ssid+=1
