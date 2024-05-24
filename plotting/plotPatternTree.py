@@ -159,7 +159,7 @@ for node in t.traverse("postorder"):
                 pid2col[pid] = colorlist[curcolnum]
                 pidprime = pid+"'"
                 pid2col[pidprime] = colorlist[curcolnum]
-                curcolnum+=3
+                curcolnum+=1
     
 
 

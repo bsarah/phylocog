@@ -506,7 +506,7 @@ class Category:
 
 
 def writetofileverbose(catlist, outputname, pid2length):
-    outputfile = outputname+"_list.txt"
+    outputfile = outputname
     outf = open(outputfile,"a")
     #verbose because we don't write the summarized/average start/end position but all the details of every single sdomain
 
@@ -559,7 +559,7 @@ def writetofileverbose(catlist, outputname, pid2length):
 
 
 def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
-    outputfile = outputname+"_list.txt"
+    outputfile = outputname
     outf = open(outputfile,"a")
     #write mapping to accessions in a separate file that is easily parseable
     #format:
