@@ -172,10 +172,10 @@ class SSequence:
             return ""
         elif(len(self.sdomlist) == 1):
             return self.sdomlist[0].fid
-        else: #put all fids in the order as a string together
+        else: #put all fids and annotations in the order as a string together
             curstr = ""
             for c in self.sdomlist:
-                curstr += c.fid
+                curstr += c.fid+c.ann
             return curstr
 
 ##########################end class SSequence#############
@@ -243,6 +243,7 @@ class SClus:
 
     def addSSeq(self,sseq):
         if(sseq.acc in self.accs):
+#            print(f'addSSeq 0: {sseq.acc}')
             return False
         if(sseq.ann == self.ann and set(self.fids) == set(sseq.getFIDs())):
             #check if it will change up and low (max, min)
@@ -269,6 +270,7 @@ class SClus:
             self.avsubranges = newavsubranges
             return True
         else:
+#            print(f'anns {sseq.ann} and {self.ann}; fids: {sseq.getFIDs()}  {self.fids} ')
             return False
 
 
@@ -836,6 +838,8 @@ with open(inputfile) as f:
 #then join two categories if they have the same pattern of sDomains, join into a cluster
 # we need to make sure that the sdomains of one sequence stay together
 
+#print(f'number of sdomains: {countsdomains}')
+
 sseqlist = []
 maxlen = 800
 
@@ -865,6 +869,9 @@ uid=0
 #sseqlist_annsorted = sorted(sseqlist, key = lambda x: x.ann, reverse = False)
 sseqlist_fidsorted = sorted(sseqlist, key = lambda x: x.createDIDStr(), reverse=False)
 
+
+
+
 #for s in sseqlist_fidsorted:
 #    print(s.createDIDStr())
 
@@ -883,6 +890,7 @@ else:
         for j in range(i+1,len(sseqlist_fidsorted)):
             jsseq = sseqlist_fidsorted[j]
             added = False
+#            print(f'i:{i} idstr {cursseq.createDIDStr()} j:{j} idstr {jsseq.createDIDStr()}')
             if(cursseq.createDIDStr() == jsseq.createDIDStr()):
                 #check if they can be in the same Sclus
                 if(cursclus.addSSeq(jsseq)):
