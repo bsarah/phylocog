@@ -12,6 +12,7 @@ parser.add_argument("infile", help = "DM output file")
 parser.add_argument("-s", "--seqfile", help = "optional, fasta file with corresponding protein sequences")
 parser.add_argument("-t", "--transfile", help = "optional, translation file to translate between protein IDs and tax IDs as in the trees.")
 parser.add_argument("-o","--outname", help = "name for produced files as output")
+parser.add_argument("-p","--patternlist", help = "optional, output file listing all patterns with counts for archaeal/bacterial proteins")
 
 args = parser.parse_args()
 
@@ -42,6 +43,13 @@ if args.transfile:
 outputname = inputfile+".out"
 if args.outname:
     outputname = args.outname
+
+
+dodetails = False
+patternfile = ""
+if args.patternlist:
+    patternfile = args.patternlist
+    dodetails = True
 
 
 class SDomain:
@@ -885,6 +893,23 @@ else:
     #print(len(sseqlist_annsorted))
     cursclus = SClus(cursseq.sdomlist[0].low, cursseq.sdomlist[-1].up, [cursseq], uid, cursseq.ann)
     uid+=1
+    #create extra statistics regarding the patterns
+    if(dodetails):
+        outpat = open(patternfile,"a")
+        outpat.write("Pattern\tCOGid\tnumA\tnumB\n")
+        numa = 0
+        numb = 0
+        #directly count for cursclus if it is a or b
+        #TODO
+        if(cursseq.acc in protID2geneid):
+            #print(f'accession {cursseq.acc}')
+            #print(protID2geneid[cursseq.acc])
+            if("a" in protID2geneid[cursseq.acc]):
+                numa+=1
+            else:
+                numb+=1
+        curfidstr = cursseq.createDIDStr()
+        #print(f'curfid str {curfidstr} ')
     while(i < len(sseqlist_fidsorted)-1):
         cursseq = sseqlist_fidsorted[i]
         for j in range(i+1,len(sseqlist_fidsorted)):
@@ -895,22 +920,53 @@ else:
                 #check if they can be in the same Sclus
                 if(cursclus.addSSeq(jsseq)):
                     added = True
+                    if(dodetails):
+                        if(jsseq.acc in protID2geneid):
+                            if("-a" in protID2geneid[jsseq.acc]):
+                                numa+=1
+                            else:
+                                numb+=1    
                     i+=1
                 else:
                     scluslist.append(cursclus)
+                    #new cluster
+                    if(dodetails):
+                        outpat.write(f'{curfidstr}\t{cogid}\t{numa}\t{numb}\n')
+                        numa = 0
+                        numb = 0
+                        if(jsseq.acc in protID2geneid):
+                            if("a" in protID2geneid[jsseq.acc]):
+                                numa+=1
+                            else:
+                                numb+=1
+                        curfidstr = jsseq.createDIDStr()
                     cursclus = SClus(jsseq.sdomlist[0].low, jsseq.sdomlist[-1].up, [jsseq], uid, jsseq.ann)
+                    
                     uid+=1
                     i+=1
             else:
                 #append clus and stop inner loop to restart with a new cluster
                 if(added == False):
                     scluslist.append(cursclus)
+                    #new cluster
+                    if(dodetails):
+                        outpat.write(f'{curfidstr}\t{cogid}\t{numa}\t{numb}\n')
+                        numa = 0
+                        numb = 0
+                        if(jsseq.acc in protID2geneid):
+                            if("a" in protID2geneid[jsseq.acc]):
+                                numa+=1
+                            else:
+                                numb+=1
+                        curfidstr = jsseq.createDIDStr()
                     cursclus = SClus(jsseq.sdomlist[0].low, jsseq.sdomlist[-1].up, [jsseq], uid, jsseq.ann)
                     uid+=1
                     i+=1
                     break
     scluslist.append(cursclus)
-
+    if(dodetails):
+        outpat.write(f'{curfidstr}\t{cogid}\t{numa}\t{numb}\n')
+    
     #print(f'number of Sclusters: {len(scluslist)}')
     #print(f'number of SSequences: {len(sseqlist)}')
 
