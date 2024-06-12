@@ -15,10 +15,9 @@ import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--intree", help="tree in newick format")
-#either translation file or pattern because the patterns contain the protid to taxid translation
-group = parser.add_argument_group('group')
-group.add_argument("-j", "--transfile", help="translation file between protein IDs and tax IDs")
-group.add_argument("-p", "--pattern", help="file listing patterns including protein IDs, tax IDs and pattern IDs")
+#use translation file AND pattern because the patterns contain the protid to taxid translation but there exist proteins that could not be mapped by HMMER (so no patterns)
+parser.add_argument("-j", "--transfile", help="translation file between protein IDs and tax IDs")
+parser.add_argument("-p", "--pattern", help="file listing patterns including protein IDs, tax IDs and pattern IDs")
 parser.add_argument("-t", "--outtree", help="output tree in newick format")
 args = parser.parse_args()
 
@@ -33,10 +32,14 @@ patternfile = ""
 translationfile= ""
 if args.pattern:
     patternfile = args.pattern
-elif args.transfile:
+else:
+    print("A pattern file has to be given!\n")
+    exit
+
+if args.transfile:
     translationfile = args.transfile
 else:
-    print("A pattern file or translation file has to be given!\n")
+    print("A translation file has to be given!\n")
     exit
 
 outputtree = ""
@@ -54,6 +57,17 @@ print(f'cogid {curcog}')
     
 protid2treeid = dict() #protein ids to lines
 
+
+if(args.transfile):
+    with open(translationfile,'r', encoding='UTF-8') as file:
+        #use the pattern -PX for all the unmapped patterns
+        for line in file:
+            line.rstrip()
+            dat = line.split("\t")
+            if(dat[7] == curcog):
+                protid2treeid[dat[3]] = str(dat[3])+"-"+str(dat[0])+"-PX"
+
+
 if(args.pattern):
     with open(patternfile,'r', encoding='UTF-8') as file:
         for line in file:
@@ -64,16 +78,6 @@ if(args.pattern):
                 dat = line.split(" ")
                 sdat = dat[0].split('-')
                 protid2treeid[sdat[0]] = dat[0] #the pattern file already contains as ID the whole ID needed on the tree
-elif(args.transfile):
-    with open(translationfile,'r', encoding='UTF-8') as file:
-        for line in file:
-            line.rstrip()
-            dat = line.split("\t")
-            if(dat[7] == curcog):
-                protid2treeid[dat[3]] = str(dat[3])+"-"+str(dat[0])
-else:
-    print(f'No translation or pattern file specified!')
-
 
 #pattern file format:
 #>PatternID 1; #Accessions 5; Structural_annotation NC_0-1=NC_1-1=K=L

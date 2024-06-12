@@ -989,3 +989,7 @@ else:
     #NEXT
     #add some parameters to the plot in order to dynamically set the plot size
     writeSClustofileverbose(scluslist,outputname,pid2length,protID2geneid)
+
+
+    #sdomlist = [] #number of sdomains, however accessions can appear several times
+#cluslist = [] #number of clusters, however accessions can appear several times
