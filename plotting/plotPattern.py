@@ -142,6 +142,8 @@ with open(inputfile) as f:
                     newdlist.append(([ac],[bc],cc))
                 
                     if cc not in domid2col:
+                        if(curcolid >= len(colors)):
+                            curcolid = 0
                         domid2col[cc] = colors[curcolid]
                         curcolid+=1          
                 clus2ranges[curclusid] = newdlist

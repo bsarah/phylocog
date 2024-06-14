@@ -605,7 +605,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
                     flatsdomlist.append((u,v,t.fid))
                     #print(t.fid)
                     if not anndone:
-                        if(t.fid != "END"):
+                        if(t.fid != "END" and curidx < len(annlist)-1):
                             correctannlist.append((u,annlist[curidx]))
                             #print(f'u {u} curidx {curidx} ann {annlist[curidx]}')
                             curidx+=1
