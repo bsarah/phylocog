@@ -605,7 +605,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
                     flatsdomlist.append((u,v,t.fid))
                     #print(t.fid)
                     if not anndone:
-                        if(t.fid != "END" and curidx < len(annlist)-1):
+                        if(t.fid != "END" and curidx < len(annlist)):
                             correctannlist.append((u,annlist[curidx]))
                             #print(f'u {u} curidx {curidx} ann {annlist[curidx]}')
                             curidx+=1
@@ -672,7 +672,7 @@ def sortRanges(propset, rangestr):
         low = int(ft[0])
         up = int(ft[1])
         subranges = [(low,up)]
-        if(sansp == {''}): #take single letters, otherwise they won't be disinguishable, e.g LLL and LLLIS
+        if(sansp == {''} or sansp == {" "} or sansp == {}): #take single letters, otherwise they won't be disinguishable, e.g LLL and LLLIS
             cann = "L" #Property field is empty
         elif(sansp == {"IS"}):
             cann = "K"#"LIS"
