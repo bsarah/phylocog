@@ -902,12 +902,14 @@ else:
         #directly count for cursclus if it is a or b
         #TODO
         if(cursseq.acc in protID2geneid):
-            #print(f'accession {cursseq.acc}')
+           # print(f'accession {cursseq.acc}')
             #print(protID2geneid[cursseq.acc])
             if("a" in protID2geneid[cursseq.acc]):
                 numa+=1
-            else:
+            elif("b" in protID2geneid[cursseq.acc]):
                 numb+=1
+            else:
+                print(f'counts: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
         curfidstr = cursseq.createDIDStr()
         #print(f'curfid str {curfidstr} ')
     while(i < len(sseqlist_fidsorted)-1):
@@ -922,10 +924,16 @@ else:
                     added = True
                     if(dodetails):
                         if(jsseq.acc in protID2geneid):
-                            if("-a" in protID2geneid[jsseq.acc]):
+                            #print(f'accession jsseq {jsseq.acc}')
+                            #print(protID2geneid[jsseq.acc])
+                            if("a" in protID2geneid[jsseq.acc]):
                                 numa+=1
+                            elif("b" in protID2geneid[jsseq.acc]):
+                                numb+=1
                             else:
-                                numb+=1    
+                                print(f'counts2: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
+                                #counts2: a272557 of BAA80813.1
+
                     i+=1
                 else:
                     scluslist.append(cursclus)

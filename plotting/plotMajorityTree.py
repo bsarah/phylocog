@@ -45,9 +45,9 @@ def labcount(ls,nodename):
     numc = len(ls)
     labcounts = [0,0,0,0,0] #a,b,s,w, other
     for l in ls:
-        if(l == 'a' or "-a" in l):
+        if(l == 'A' or "-A" in l):
             labcounts[0]+=1
-        elif(l=='b' or "-b" in l):
+        elif(l=='B' or "-B" in l):
             labcounts[1]+=1
         elif(l=='s'):
             labcounts[2]+=1
@@ -103,7 +103,7 @@ def layout(node):
         # And place as a float face over the tree
         faces.add_face_to_node(C, node, 0, position="float")
         faces.add_face_to_node(F, node, column=0, position="branch-right")
-    #curmark = nmarks[node.name]
+    curmark = nmarks[node.name]
     if(curmark == 'a'):
         node.set_style(nst2)
     elif(curmark == 'b'):
@@ -126,6 +126,9 @@ def calcSplits(tree, nmarks):
     anodes = [] #names of archaeal nodes
     bnodes = [] #names of bacterial nodes
     totnodes = 0
+    numaBnodes =0
+    numbAnodes = 0
+    others = 0
 
     for node in t.traverse("postorder"):
         nname = node.name
@@ -138,9 +141,15 @@ def calcSplits(tree, nmarks):
             if("-b" in tmpname):
                 bnodes.append(node.name)
                 nmarks[node.name] = "b"
-            else:
+                if(tmpname[-2:] == "-A"):
+                    numbAnodes+=1
+            elif("-a" in tmpname):
                 anodes.append(node.name)
                 nmarks[node.name] = "a"
+                if(tmpname[-2:] == "-B"):
+                    numaBnodes+=1
+            else:
+                others += 1
         else:
             if(node.is_root()):
                 tmpname = "r"+str(id)
@@ -164,7 +173,7 @@ def calcSplits(tree, nmarks):
                 #print(node.name)
                 mixednodes.append(tmpname)
         id=id+1
-    curline = f'{curcog}\t{len(anodes)}\t{len(bnodes)}\t{len(anodes)+len(bnodes)\t{numsplits}\n}'
+    curline = f'{curcog}\t{len(anodes)}\t{len(bnodes)}\t{len(anodes)+len(bnodes)}\t{numaBnodes}\t{numbAnodes}\t{numsplits}\t{others}\n'
     return curline
 
         
@@ -188,7 +197,7 @@ outline = calcSplits(t, nmarks)
 print(outline)
 
 lso = outline.split("\t")
-totnodes = lso[-2]
+totnodes = int(lso[-2])
 
 if(totnodes < 150):
     
