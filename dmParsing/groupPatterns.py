@@ -582,7 +582,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
     #>artificial catID and number of sequences and structural domain annotation as in plot
     #Accession [(0,0,START), (start,end,Fid)...(n,n+10,END)] :n = len(prot)
     ##...
-    starttuple = (0,0,"START")
+    #starttuple = (0,0,"START")
     for cc in range(len(scluslist)):
         c = scluslist[cc] #current pattern
         if(c.ann == "END"):
@@ -641,7 +641,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
 
         #print(idline)
         #print(f'{vstr}\n')
-        return ((numa,numb))
+    return ((numa,numb))
 
 
 #======================================end writetofileverboseclus
@@ -1016,6 +1016,7 @@ else:
 
     #NEXT
     #add some parameters to the plot in order to dynamically set the plot size
+    #output is the number of a or b proteins
     (sseqa,sseqb) = writeSClustofileverbose(scluslist,outputname,pid2length,protID2geneid)
 
     #check for numbers
