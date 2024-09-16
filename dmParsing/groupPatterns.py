@@ -591,13 +591,19 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
         correctannlist = []
         curidx = 0
         anndone = 0 #only needed for first sequence in pattern
-        
+        numa = 0
+        numb =0   
         for s in c.sseqs: #s=sseq
             #we have to write down all the SSequences per cluster
             vstr = str(s.acc)
             if(s.acc in protID2geneid):
                 vstr += f'-{protID2geneid[s.acc]}-P{c.uid}' #add patternID: pid = f'P{c.uid}'
                 #print(vstr)
+            #check if vstr contains -a or -b and count
+            if("-a" in vstr):
+                numa += 1
+            if("-b" in vstr):
+                numb += 1
             vstr+=f' (0,0,START)'
             flatsdomlist = []
             for t in s.sdomlist:
@@ -635,6 +641,7 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
 
         #print(idline)
         #print(f'{vstr}\n')
+        return ((numa,numb))
 
 
 #======================================end writetofileverboseclus
@@ -885,7 +892,10 @@ sseqlist_fidsorted = sorted(sseqlist, key = lambda x: x.createDIDStr(), reverse=
 
 if(len(sseqlist_fidsorted)==0):
     #print(f'WARNING: sseqlist sorted is empty!\n')
-    print(f'{cogid}\t{nump}\t{numd}\t{ltot}({lperc}%)\t{nctot}{ncperc}\t{cptot}{cpperc}\t{istot}{isperc}\t0\t{countsdomains}\t{len(sseqlist)}')
+    resratio = 0
+    if(nump >0):
+        resratio = round(len(sseqlist)/nump,2)
+    print(f'{cogid}\t{nump}\t{numd}\t{ltot}({lperc}%)\t{nctot}{ncperc}\t{cptot}{cpperc}\t{istot}{isperc}\t0\t{countsdomains}\t{len(sseqlist)}\t{resratio}')
     exit
 else:
     i = 0
@@ -909,7 +919,7 @@ else:
             elif("b" in protID2geneid[cursseq.acc]):
                 numb+=1
             else:
-                print(f'counts: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
+                print(f'WARNING counts1: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
         curfidstr = cursseq.createDIDStr()
         #print(f'curfid str {curfidstr} ')
     while(i < len(sseqlist_fidsorted)-1):
@@ -931,7 +941,7 @@ else:
                             elif("b" in protID2geneid[jsseq.acc]):
                                 numb+=1
                             else:
-                                print(f'counts2: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
+                                print(f'WARNING counts2: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
                                 #counts2: a272557 of BAA80813.1
 
                     i+=1
@@ -945,8 +955,10 @@ else:
                         if(jsseq.acc in protID2geneid):
                             if("a" in protID2geneid[jsseq.acc]):
                                 numa+=1
-                            else:
+                            elif("b" in protID2geneid[jsseq.acc]):
                                 numb+=1
+                            else:
+                                print(f'WARNING counts3: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
                         curfidstr = jsseq.createDIDStr()
                     cursclus = SClus(jsseq.sdomlist[0].low, jsseq.sdomlist[-1].up, [jsseq], uid, jsseq.ann)
                     
@@ -964,8 +976,10 @@ else:
                         if(jsseq.acc in protID2geneid):
                             if("a" in protID2geneid[jsseq.acc]):
                                 numa+=1
-                            else:
+                            elif("b" in protID2geneid[jsseq.acc]):
                                 numb+=1
+                            else:
+                                print(f'WARNING counts4: {protID2geneid[cursseq.acc]} of {cursseq.acc}')
                         curfidstr = jsseq.createDIDStr()
                     cursclus = SClus(jsseq.sdomlist[0].low, jsseq.sdomlist[-1].up, [jsseq], uid, jsseq.ann)
                     uid+=1
@@ -973,6 +987,9 @@ else:
                     break
     scluslist.append(cursclus)
     if(dodetails):
+        #check for numa and numb!
+
+        #write to outfile
         outpat.write(f'{curfidstr}\t{cogid}\t{numa}\t{numb}\n')
     
     #print(f'number of Sclusters: {len(scluslist)}')
@@ -989,15 +1006,22 @@ else:
     if(numd>0):
         prelperc = round(ltot/numd * 100,2)
     lperc = str(prelperc)
+    resratio = 0
+    if(nump >0):
+        resratio = round(len(sseqlist)/nump,2)
 
-    print(f'{cogid}\t{nump}\t{numd}\t{ltot}({lperc}%)\t{nctot}{ncperc}\t{cptot}{cpperc}\t{istot}{isperc}\t{len(scluslist)}\t{countsdomains}\t{len(sseqlist)}')
+    print(f'{cogid}\t{nump}\t{numd}\t{ltot}({lperc}%)\t{nctot}{ncperc}\t{cptot}{cpperc}\t{istot}{isperc}\t{len(scluslist)}\t{countsdomains}\t{len(sseqlist)}\t{resratio}')
 
 
 
     #NEXT
     #add some parameters to the plot in order to dynamically set the plot size
-    writeSClustofileverbose(scluslist,outputname,pid2length,protID2geneid)
+    (sseqa,sseqb) = writeSClustofileverbose(scluslist,outputname,pid2length,protID2geneid)
 
+    #check for numbers
+
+    if(numa != sseqa or numb != sseqb):
+        print(f'WARNING: counts for archaeal {numa},{sseqa} and bacterial {numb},{sseqb} do not match!')
 
     #sdomlist = [] #number of sdomains, however accessions can appear several times
 #cluslist = [] #number of clusters, however accessions can appear several times
