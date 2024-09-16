@@ -183,7 +183,10 @@ class SSequence:
         else: #put all fids and annotations in the order as a string together
             curstr = ""
             for c in self.sdomlist:
-                curstr += c.fid+c.ann
+                if(c.ann != "END"):
+                    curstr += c.fid+c.ann+'_'
+                else:
+                    curstr += c.fid+c.ann
             return curstr
 
 ##########################end class SSequence#############
@@ -698,13 +701,13 @@ def sortRanges(propset, rangestr):
             ft = doms[i].split('-')
             subranges.append((int(ft[0]),int(ft[1])))
             if(sansp == {"NC"}):
-                tmpann = "NC_"+str(i)+"-"+str(ofnum)
+                tmpann = "NC"+str(i)+"-"+str(ofnum)
             elif(sansp == {"NC","IS"}):
-                tmpann = "NI_"+str(i)+"-"+str(ofnum)
+                tmpann = "NI"+str(i)+"-"+str(ofnum)
             elif(sansp == {"NC","CP"} ):
-                tmpann = "NP_"+str(i)+"-"+str(ofnum)
+                tmpann = "NP"+str(i)+"-"+str(ofnum)
             elif(sansp == {"NC","CP", "IS"} ):
-                tmpann = "NB_"+str(i)+"-"+str(ofnum) #NB instead of NPI
+                tmpann = "NB"+str(i)+"-"+str(ofnum) #NB instead of NPI
             else:
                 print(f'unknown structure: {sansp}')
             annlist.append(tmpann)
