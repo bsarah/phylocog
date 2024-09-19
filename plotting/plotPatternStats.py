@@ -63,16 +63,20 @@ pats = pd.read_csv(inputfile,sep='\t')
 
 cog2xlist = dict()
 x2coglist = dict()
+x2numseq = dict()
 for (index,row) in pats.iterrows():
     cogid = row[1]
+    numseqs = int(row[2])+int(row[3])
     ps = row[0].split('_')
     for p in ps:
         pps = p.split('.')
         curxgroup = pps[0]
         if curxgroup in x2coglist:
             x2coglist[curxgroup].append(cogid)
+            x2numseq[curxgroup] += numseqs
         else:
             x2coglist[curxgroup] = [cogid]
+            x2numseq[curxgroup] = numseqs
         if cogid in cog2xlist:
             cog2xlist[cogid].append(curxgroup)
         else:
@@ -88,44 +92,46 @@ outf = open(outputbarplot,"a")
 #plot barplot with bar height=number of same cogid
 #problem: no insight into type of structural domain, e.g. L, NC etc
 xgs = []
-numcogs = []
-for (k,v) in x2coglist.items():
+numpats = []
+for (k,v) in x2numseq.items():
     if(k=="ENDEND"):
         continue
     xgs.append(str(k))
-    numcogs.append(len(v))
-    outf.write(f'{k}\t{inputcog}\n')
+    numpats.append(v)
+
     
-    
-df = pd.DataFrame()
-df['xgroup'] = xgs
-df['counts'] = numcogs
+#df = pd.DataFrame()
+#df['xgroup'] = xgs
+#df['counts'] = numpats
 #dataset = pd.DataFrame({'xgroup': xgs, 'numcogs': numcogs}, columns=['xgroup', 'numcogs'])
 #print(df)
 #df[:5]
 
 #calculate percentages for xgroups
-sumcogs = sum(numcogs)
+sumcogs = sum(numpats)
 percogs = []
 
 xgs_filtered = []
 percogs_filtered = []
-for n in range(len(numcogs)):
-    perc = round(numcogs[n]/sumcogs,2)
+for n in range(len(numpats)): #numpats=numpatterns
+    #print(f'calculation: {numpats[n]}/{sumcogs}')
+    perc = round(numpats[n]/sumcogs,2)
     percogs.append(perc)
     if(perc > 0):
         xgs_filtered.append(xgs[n])
         percogs_filtered.append(perc)
+        outf.write(f'{xgs[n]}\t{incog}\t{perc}\n')
         
 rem = 1-sum(percogs_filtered)
 xgs_filtered.append("rest")
 percogs_filtered.append(rem)
-#print(sum(percogs_filtered))
+#print(percogs)
+#print(percogs_filtered)
 
 
             
 ##pie chart:
-piefile = f'{outputfolder}/{inputcog}_patternpie.pdf'
+piefile = f'{outputfolder}/{incog}_patternpie.pdf'
 
 #define Seaborn color palette to use
 colors = sns.color_palette('pastel')#[0:5]
@@ -140,7 +146,7 @@ plt.pie(percogs_filtered,
         textprops={'fontsize':8})
 
 plt.title(
-    label=f'{inputcog} ECOG X groups', 
+    label=f'{incog} ECOG X groups', 
     fontdict={"fontsize":10},
     pad=20
 )
