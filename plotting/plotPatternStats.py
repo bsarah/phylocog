@@ -121,10 +121,11 @@ for n in range(len(numpats)): #numpats=numpatterns
         xgs_filtered.append(xgs[n])
         percogs_filtered.append(perc)
         outf.write(f'{xgs[n]}\t{incog}\t{perc}\n')
-        
-rem = 1-sum(percogs_filtered)
-xgs_filtered.append("rest")
-percogs_filtered.append(rem)
+
+if(sum(percogs_filtered) < 1):
+    rem = 1-sum(percogs_filtered)
+    xgs_filtered.append("rest")
+    percogs_filtered.append(rem)
 #print(percogs)
 #print(percogs_filtered)
 

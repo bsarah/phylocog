@@ -908,7 +908,7 @@ else:
     uid+=1
     #create extra statistics regarding the patterns
     if(dodetails):
-        outpat = open(patternfile,"a")
+        outpat = open(patternfile,"a") #patternstats
         outpat.write("Pattern\tCOGid\tnumA\tnumB\n")
         numa = 0
         numb = 0
@@ -1013,7 +1013,7 @@ else:
     if(nump >0):
         resratio = round(len(sseqlist)/nump,2)
 
-    print(f'{cogid}\t{nump}\t{numd}\t{ltot}({lperc}%)\t{nctot}{ncperc}\t{cptot}{cpperc}\t{istot}{isperc}\t{len(scluslist)}\t{countsdomains}\t{len(sseqlist)}\t{resratio}')
+    print(f'{cogid}\t{nump}\t{numd}\t{ltot}({lperc}%)\t{nctot}{ncperc}\t{cptot}{cpperc}\t{istot}{isperc}\t{len(scluslist)}\t{countsdomains}\t{len(sseqlist)}\t{resratio}\t{numa}\t{numb}')
 
 
 
