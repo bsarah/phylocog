@@ -661,13 +661,19 @@ def readFasta(fastafile):
             if(ll[0] == ">"):
                 ls = ll.split(" ")
                 if(curid != ""):
-                    pid2length[curid] = curlen
+                    cs = curid.split('|')
+                    tmpcurid = cs[0]
+                    pid2length[tmpcurid] = curlen
+                    #print(f'PID2LEN:{curid}:{tmpcurid}:{curlen}')
                 curid = ls[0][1:]
                 curlen=0
             else:
                 lls = ll.strip()
                 curlen+=len(lls)
-        pid2length[curid] = curlen
+        cs = curid.split('|')
+        tmpcurid = cs[0]        
+        pid2length[tmpcurid] = curlen
+        #print(f'PID2LEN:{curid}:{tmpcurid}:{curlen}')
 
     return pid2length
 
@@ -866,10 +872,12 @@ for (acc,sdlist) in acc2sdoms.items():
     #print(f'acc and len sdoms: {acc} with {len(sdlist)}\n')
     if(doseqlen):
         lena = maxlen
-        if(acc in pid2length):
-            lena = pid2length[acc]
+        tmpas = acc.split('|')
+        tmpacc=tmpas[0]
+        if(tmpacc in pid2length):
+            lena = pid2length[tmpacc]
         else:
-            print(f'WARNING: {acc} not in pid2length, is it in fasta?\n')
+            print(f'WARNING: neither {acc} nor {tmpacc} in pid2length, is it in fasta?\n')
         endomain = SDomain("END", acc, lena, lena+10, "END", 0, [(lena,lena+10)], 1, "END")
         sdlist.append(endomain)
     sseq = SSequence(sdlist,ssid)
