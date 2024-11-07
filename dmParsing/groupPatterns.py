@@ -189,6 +189,31 @@ class SSequence:
                     curstr += c.fid+c.ann
             return curstr
 
+
+
+    def createDIDStrLength(self):
+        if(len(self.sdomlist) == 0):
+            return ""
+        elif(len(self.sdomlist) == 1):
+            return self.sdomlist[0].fid
+        else: #put all fids and annotations in the order as a string together
+            curstr = ""
+            totlen = 0 #check the summed up length of the sdomains to sort into shorter and longer ones
+            for c in self.sdomlist:
+                totlen += abs(c.up-c.low)
+                if(c.ann != "END"):
+                    curstr += c.fid+c.ann+'_'
+                else:
+                    curstr += c.fid+c.ann
+            nstr = str(totlen)
+            nstrl = len(nstr)
+            #take 9 positions
+            missing = 9-nstrl
+            zerolist = ['0']*missing
+            zlstr = ''.join(zerolist)
+            curstr += '_'+zlstr+nstr
+            return curstr
+
 ##########################end class SSequence#############
 
 
@@ -252,11 +277,37 @@ class SClus:
 
 
 
-    def addSSeq(self,sseq):
+    def addSSeq(self,sseq):   
         if(sseq.acc in self.accs):
 #            print(f'addSSeq 0: {sseq.acc}')
             return False
-        if(sseq.ann == self.ann and set(self.fids) == set(sseq.getFIDs())):
+        #check conditions to attachment first
+        checkann = (sseq.ann == self.ann)
+        checkfids = (set(self.fids) == set(sseq.getFIDs()))
+        #check lengths of sdoms and also check if up and low are very far from the current average
+
+        #what is very far? 50?
+        checklens = True
+        distthreshold = 100
+        avlens = [0]*len(sseq.sdomlist)
+        
+        for sq in self.sseqs:
+            for iss in range(len(sq.sdomlist)):
+                sd = sq.sdomlist[iss]
+                lsd = sd.up - sd.low
+                avlens[iss] += lsd
+
+        avlens = [a/len(self.sseqs) for a in avlens]
+
+        for sis in range(len(sseq.sdomlist)):
+            ssd = sseq.sdomlist[sis]
+            ssdlen = ssd.up-ssd.low
+            delta = abs(ssdlen-avlens[sis])
+            if(delta > distthreshold):
+               checklens = False 
+                
+                    
+        if(checkann and checkfids and checklens):
             #check if it will change up and low (max, min)
             if(sseq.low < self.low):
                 self.low = sseq.low
@@ -893,7 +944,7 @@ scluslist = []
 uid=0
 #sseqlist_lensorted = sorted(sseqlist, key = lamda x: len(x.sdomlist), reverse = False)
 #sseqlist_annsorted = sorted(sseqlist, key = lambda x: x.ann, reverse = False)
-sseqlist_fidsorted = sorted(sseqlist, key = lambda x: x.createDIDStr(), reverse=False)
+sseqlist_fidsorted = sorted(sseqlist, key = lambda x: x.createDIDStrLength(), reverse=False)
 
 
 
