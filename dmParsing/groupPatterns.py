@@ -288,7 +288,7 @@ class SClus:
 
         #what is very far? 50?
         checklens = True
-        distthreshold = 100
+        distthreshold = 75
         avlens = [0]*len(sseq.sdomlist)
         
         for sq in self.sseqs:
