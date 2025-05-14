@@ -42,7 +42,6 @@ if args.translationfile:
     inputfile = args.translationfile
 else:
     print("no translation file given, assume trees with taxids!\n")
-    exit
 
 inputfolder = ""
 if args.infolder:
@@ -123,6 +122,9 @@ def layout(node):
         elif("-b" in node.name):
             #N = AttrFace("name", fsize=30, fgcolor="blue")
             F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="blue",bold=True)
+        elif("-e" in node.name):
+            #N = AttrFace("name", fsize=30, fgcolor="blue")
+            F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="green",bold=True)            
         else:
             F = AttrFace("name", fsize=30, fgcolor="black")
         #faces.add_face_to_node(N, node, 0)
@@ -132,7 +134,7 @@ def layout(node):
         F = TextFace(node.name, tight_text=True, fsize=60, ftype="Arial", fgcolor="black",bold=True)
         # Creates a sphere face whose size is proportional to node's
         # feature "weight"
-        C = CircleFace(radius=node.support*75, color="DarkGreen", style="sphere")
+        C = CircleFace(radius=node.support*75, color="orange", style="sphere")
         # Let's make the sphere transparent
         C.opacity = 0.7
         # And place as a float face over the tree
@@ -143,6 +145,8 @@ def layout(node):
         node.set_style(nst2)
     elif(curmark == 'b'):
         node.set_style(nst1)
+    elif(curmark == 'e'):
+        node.set_style(nst3)        
     else:
         node.set_style(nst0)
 
@@ -208,8 +212,10 @@ for line in file3:
     mixednodes = []
     sumsupport = 0
     numinnodes = 0
+    #remember nodes to calculate distances, enodes not included in distances yet!
     anodes = [] #names of archaeal nodes
     bnodes = [] #names of bacterial nodes
+    enodes = [] #names of eukaryotes
     totnodes = 0
 
     for node in t.traverse("postorder"):
@@ -235,9 +241,12 @@ for line in file3:
             if("-b" in tmpname):
                 bnodes.append(node.name)
                 nmarks[node.name] = "b"
-            else:
+            elif("-a" in tmpname):
                 anodes.append(node.name)
                 nmarks[node.name] = "a"
+            else:
+                enodes.append(node.name)
+                nmarks[node.name] = "e"
         else:
             if(node.is_root()):
                 tmpname = "r"+str(id)
@@ -323,8 +332,11 @@ for line in file3:
     nst2["bgcolor"] = "LightSalmon"
     nst2["hz_line_width"]=5
     nst2["vt_line_width"]=5
-    #nst3 = NodeStyle()
-    #nst3["bgcolor"] = "DarkSeaGreen"
+    nst3 = NodeStyle()
+    nst3["bgcolor"] = "DarkSeaGreen"
+    nst3["hz_line_width"]=5
+    nst3["vt_line_width"]=5
+
     #nst4 = NodeStyle()
     #nst4["bgcolor"] = "Khaki"
 
@@ -346,7 +358,7 @@ for line in file3:
         ts.show_leaf_name = False
         ts.show_branch_length = True
         ts.show_branch_support = True
-        ts.mode = "c"
+        ts.mode = "c" #put r for rectangular tree shape and c for circular
         ts.layout_fn = layout
         ts.arc_start = 0 # 0 degrees = 3 o'clock
         ts.arc_span = 360
@@ -359,8 +371,11 @@ for line in file3:
         
         ts.legend.add_face(CircleFace(100, "blue"), column=0)
         ts.legend.add_face(TextFace("  Bacteria", fsize=200, ftype="Arial"), column=1)
-        
+
         ts.legend.add_face(CircleFace(100, "green"), column=0)
+        ts.legend.add_face(TextFace("  Eukaryota", fsize=200, ftype="Arial"), column=1)
+        
+        ts.legend.add_face(CircleFace(100, "orange"), column=0)
         ts.legend.add_face(TextFace("  support", fsize=200, ftype="Arial"), column=1)
         
         # Position legend in lower right corner

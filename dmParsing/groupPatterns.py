@@ -92,7 +92,11 @@ class SDomain:
         for i in range(len(self.subdoms)):
             (s1, e1) = self.subdoms[i]
             (s2, e2) = sdom2.subdoms[i]
-            if((s1 <= e2) and (e1 >= s2)):
+            #we want that they overlap with at least a certain interval
+            #check length of overlap
+            OVERLAPlength = 100
+            if(e2-s1 >= OVERLAPlength and e1-s2 >= OVERLAPlength):
+#            if((s1 <= e2) and (e1 >= s2)):
                 ocount+=1
             #else:
                 #return False
@@ -288,7 +292,7 @@ class SClus:
 
         #what is very far? 50?
         checklens = True
-        distthreshold = 75
+        distthreshold = 50
         avlens = [0]*len(sseq.sdomlist)
         
         for sq in self.sseqs:
@@ -709,8 +713,9 @@ def readFasta(fastafile):
         curid = ""
         curlen = 0
         for ll in ff:
-            if(ll[0] == ">"):
-                ls = ll.split(" ")
+            llx = ll.strip()
+            if(llx[0] == ">"):
+                ls = llx.split(" ")
                 if(curid != ""):
                     cs = curid.split('|')
                     tmpcurid = cs[0]
@@ -806,8 +811,6 @@ if(dotranslate):
         #protID2line[cols[3]] = line2
 
     file1.close()
-
-
 
 
 
