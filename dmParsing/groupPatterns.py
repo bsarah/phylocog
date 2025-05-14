@@ -627,6 +627,7 @@ def writetofileverbose(catlist, outputname, pid2length):
 
 
 def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
+    #print(" writeSClustofileverbose")
     outputfile = outputname
     outf = open(outputfile,"a")
     #write mapping to accessions in a separate file that is easily parseable
@@ -657,6 +658,8 @@ def writeSClustofileverbose(scluslist, outputname, pid2length, protID2geneid):
             if(s.acc in protID2geneid):
                 vstr += f'-{protID2geneid[s.acc]}-P{c.uid}' #add patternID: pid = f'P{c.uid}'
                 #print(vstr)
+            else:
+                vstr +=f'-P{c.uid}'
             #check if vstr contains -a or -b and count
             if("-a" in vstr):
                 numa += 1
