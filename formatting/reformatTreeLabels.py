@@ -33,14 +33,12 @@ translationfile= ""
 if args.pattern:
     patternfile = args.pattern
 else:
-    print("A pattern file has to be given!\n")
-    exit
+    print("No pattern file found, use translation!\n")
 
 if args.transfile:
     translationfile = args.transfile
 else:
-    print("A translation file has to be given!\n")
-    exit
+    print("No translation file found, use pattern!\n")
 
 outputtree = ""
 if args.outtree:
@@ -76,8 +74,11 @@ if(args.pattern):
                 continue
             else:
                 dat = line.split(" ")
-                sdat = dat[0].split('-')
-                protid2treeid[sdat[0]] = dat[0] #the pattern file already contains as ID the whole ID needed on the tree
+                #sdat = label without pattern ID
+                presdat = dat[0].split('-')
+                sdat = '-'.join(presdat[:-1])
+                #print(f'{sdat} vs {dat[0]}')
+                protid2treeid[sdat] = dat[0] #the pattern file already contains as ID the whole ID needed on the tree
 
 #pattern file format:
 #>PatternID 1; #Accessions 5; Structural_annotation NC_0-1=NC_1-1=K=L

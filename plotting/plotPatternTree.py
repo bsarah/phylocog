@@ -152,6 +152,8 @@ def layout(node):
         node.set_style(nst2)
     elif("-b" in node.name):
         node.set_style(nst1)
+    elif("-e" in node.name):
+        node.set_style(nst3)
     else:
         node.set_style(nst0)
 
@@ -216,8 +218,10 @@ nst2 = NodeStyle()
 nst2["bgcolor"] = "LightSalmon"
 nst2["hz_line_width"]=5
 nst2["vt_line_width"]=5
-#nst3 = NodeStyle()
-#nst3["bgcolor"] = "DarkSeaGreen"
+nst3 = NodeStyle()
+nst3["bgcolor"] = "DarkSeaGreen"
+nst3["hz_line_width"]=5
+nst3["vt_line_width"]=5
 #nst4 = NodeStyle()
 #nst4["bgcolor"] = "Khaki"
 
@@ -236,7 +240,7 @@ ts = TreeStyle()
 ts.show_leaf_name = False
 ts.show_branch_length = True
 ts.show_branch_support = True
-ts.mode = "c"
+ts.mode = "r"
 ts.layout_fn = layout
 ts.arc_start = 0 # 0 degrees = 3 o'clock
 ts.arc_span = 360
@@ -250,8 +254,8 @@ ts.legend.add_face(TextFace("  Archaea", fsize=200, ftype="Arial"), column=1)
 ts.legend.add_face(CircleFace(100, "lightsteelblue"), column=0)
 ts.legend.add_face(TextFace("  Bacteria", fsize=200, ftype="Arial"), column=1)
         
-#ts.legend.add_face(CircleFace(100, "green"), column=0)
-#ts.legend.add_face(TextFace("  support", fsize=200, ftype="Arial"), column=1)
+ts.legend.add_face(CircleFace(100, "green"), column=0)
+ts.legend.add_face(TextFace("  Eukarya", fsize=200, ftype="Arial"), column=1)
         
 # Position legend in lower right corner
 ts.legend_position=4
