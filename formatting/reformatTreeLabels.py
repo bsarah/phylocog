@@ -78,10 +78,9 @@ if(args.pattern):
                 #sdat = label without pattern ID
                 presdat = dat[0].split('-')
                 sdat = '-'.join(presdat[:-1])
-                #print(f'{sdat} vs {dat[0]}')
+ #               print(f'{sdat} vs {dat[0]}')
                 #if the label only has the protein id, just take the first part and add the taxid and the patternid
                 sdat2 = presdat[0]
-                sval2 = '-'.join(presdat[1:])
                 protid2treeid[sdat] = str(dat[0]) #the pattern file already contains as ID the whole ID needed on the tree
                 protid2treeid[sdat2] = str(dat[0]) #the pattern file already contains as ID the whole ID needed on the tree
 
@@ -99,15 +98,15 @@ pretree.bifurcate()
 id = 0 #for postorder traversal
 for node in pretree.postorder():
     if(node.is_tip()): #leaves
-        #why did we do this split? it seems to introduce ticks around the node names
-        #protids = node.name.split(' ')
-        protid = node.name #'_'.join(protids)
-        #print(f'node name {node.name}')
-        #print(f'protid {protid}')
+        protids = node.name.split()
+        protid = '_'.join(protids)
         if(protid in protid2treeid):
-#            print(f'{protid2treeid[protid]}')
-            node.name = protid2treeid[protid]
-#            print(node.name)
+            #            print(f'{protid} to {protid2treeid[protid]}')
+            node.name = str(protid2treeid[protid])
+            #there are quotes around the node names because: If your node names contain spaces or special characters, quotes will be added automatically for Newick format validity
+        else:
+            #            print(f'{protid} not in protid2treeid')
+            node.name = node.name+"PX" #add X for unknown pattern
 
     else:
         if(node.is_root()):
@@ -116,6 +115,5 @@ for node in pretree.postorder():
             node.name = f'i{str(id)}i'
     id+=1
 
-#print(str(pretree))
 #outfile.write(str(pretree))
 pretree.write(outfile, format='newick')
