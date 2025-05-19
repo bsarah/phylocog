@@ -91,7 +91,8 @@ outfile = open(outputtree,"w")
 pretree = read(inputtree, format="newick", into=TreeNode)
 pretree.bifurcate()
 
-for node in pretree.preorder():
+id = 0 #for postorder traversal
+for node in pretree.postorder():
     if(node.is_tip()): #leaves
         protids = node.name.split(' ')
         protid = '_'.join(protids)
@@ -101,5 +102,11 @@ for node in pretree.preorder():
             #print(f'{protid2treeid[protid]}')
             node.name = str(protid2treeid[protid])
 
+    else:
+        if(node.is_root()):
+            node.name = f'r{str(id)}'
+        else:
+            node.name = f'i{str(id)}i'
+    id+=1
 #outfile.write(str(pretree))
 pretree.write(outfile, format='newick')
