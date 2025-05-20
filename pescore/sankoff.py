@@ -63,13 +63,14 @@ def avPattern(patternfile, outpatternfile):
                 #clusnum
                 cs0 = cs[0].split(" ")
                 curclusid = int(cs0[-1])
+#                print(f'current pattern: {curclusid}')
                 #accessions
                 cs1 = cs[1].split(" ")
                 curacc = cs1[-1]
                 #annotation
                 cs2 = cs[2].split(" ")
                 curann = cs2[-1]
-                clusid2label[curclusid] = f'#{curclusid}:{curacc}x:{curann}'
+                clusid2label[curclusid] = curline
             else: #line describing one sequence
                 dseq = curline.split(" ")[2:] #this is the domain sequence including end but without start
                 #print(dseq)
@@ -114,7 +115,8 @@ def avPattern(patternfile, outpatternfile):
                         bc = int(psd[1])
                         cc = psd[2]
                         newdlist.append(([ac],[bc],cc))
-                        clus2ranges[curclusid] = newdlist
+ #                   print(f'append {newdlist}')
+                    clus2ranges[curclusid] = newdlist
 
 
 
@@ -137,9 +139,24 @@ def avPattern(patternfile, outpatternfile):
     for (clusid,v) in clus2ranges.items():
         newv = []
         for (xs,ys,z) in v:
+            print(f'averaging: xs {xs}, ys {ys}')
             avxs = int(sum(xs)/len(xs))
             avys = int(sum(ys)/len(ys))
-            newv.append((avxs,avys,z))
+            newv.append(f'({avxs},{avys},{z})')
+        (a,b) = clus2maxend[clusid]
+        newv.append(f'({a},{b},END)')
+        print(f'result {newv}')
+        print(clusid2label[clusid])
         clus2avranges[clusid] = newv
-
+        outstr = f'avgPattern-P{clusid} (0,0,START)'
+        for xs in newv:
+            outstr = outstr+" "+xs
+        outf.write(f'{clusid2label[clusid]}\n')
+        outf.write(f'{outstr}\n')
+        
     print(len(clus2avranges.items()))
+
+
+
+
+avPattern(patternfile, outpatternfile)
