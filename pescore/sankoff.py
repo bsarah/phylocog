@@ -3,7 +3,7 @@ import pandas as pd
 from io import StringIO
 from skbio import read
 from skbio.tree import TreeNode
-
+import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--intree", help="tree in newick format")
@@ -44,6 +44,7 @@ else:
 
 ##set path to domain alignment if needed
 dnwa_path = "../pairwise-dNWA"
+alnparse_path = "../aln2tree"
 
 ##calculate the average pattern in case a pattern has more than 1 sequence
 def avPattern(patternfile, outpatternfile):
@@ -154,9 +155,119 @@ def avPattern(patternfile, outpatternfile):
         outf.write(f'{clusid2label[clusid]}\n')
         outf.write(f'{outstr}\n')
         
-    print(len(clus2avranges.items()))
+    #print(len(clus2avranges.items()))
+
+
+def read_dNWA_aln(alnfile):
+    aln2score = dict() #aln between two patterns -> normalized score
+    with open(alnfile) as f:
+        for line in f:
+            curline = line.strip()
+            if(curline[0] == '>'): #id line
+                ls = curline.split(',')
+                preid1 = ls[0]
+                id1 = preid1[1:]
+                preid2 = ls[2]
+                id2 = preid2[1:]
+                score = int(ls[4])
+                length = int(ls[5])
+                nscore = round(score/length,2)
+                alnid1 = (id1,id2)
+                alnid2 = (id2,id1)
+                aln2score[alnid1] = nscore
+                aln2score[alnid2] = nscore
+    return aln2score
 
 
 
+def sankoff(aln2score,inputtree,outputtree):
+    #possible labels can be found in the dictionary
+    ks = list(aln2score.keys())
+    kks = []
+    for (a,b) in ks:
+        kks.append(a)
+        kks.append(b)
 
+    unique_pids = list(set(kks))
+    #we need a DP matrix node IDs vs labels
+    #postorder node IDs!
+    outfile = open(outputtree,"w")
+
+    pretree = read(inputtree, format="newick", into=TreeNode)
+    pretree.bifurcate()
+    nodenum = pretree.count()
+
+    #create matrix
+    maxval = 100000
+    dpm = dict()
+    for up in unique_pids:
+        for i in range(nodenum):
+            dpm[(up,i)] = maxval
+
+    nodeid2bestmatch = dict()
+    curid = 0 #for postorder traversal
+    for node in pretree.postorder():
+        if(node.is_tip()):
+            nns = node.name.split('-')
+            prelab = nns[-1]
+            nodelabel = int(prelab[1:])
+            dpm[(nodelabel,curid)] = 0
+            nodeid2bestmatch[curid] = (nodelabel,0)
+        else:
+            #calculate score from children nodes (curid-1 and curid -2) for all possible labels
+            #fill dpm[(up,curid)] for current node
+            curlab2min = []
+            for up in unique_pids:
+                labnscore1 = [] #store labels with scores for child1
+                labnscore2 = [] #store labels with scores for child2
+                for vp in unique_pids:
+                    prevsc1 = dpm[(vp,curid-1)]
+                    dist1 = aln2score[(up,vp)]
+                    labnscore1.append((vp,prevsc1+dist1))
+                    prevsc2 = dpm[(vp,curid-2)]
+                    dist2 = aln2score[(up,vp)]
+                    labnscore2.append((vp,prevsc2+dist2))
+                #get min from both lists
+                labnscore1.sort(key=lambda x:x[1])
+                min1 = labnscore1[0]
+                labnscore2.sort(key=lambda x:x[1])
+                min2 = labnscore2[0]
+                dpm[(up,curid)] = min1+min2
+                curlab2min.append((up,min1+min2))
+            curlab2min.sort(key=lambda x:x[1])
+            nodeid2bestmatch[curid] = (curlab2min[0][0],curlab2min[0][1])
+    print(nodeid2bestmatch)
+    #recreate the tree with internal node labels corresponding to the best fitting labels
+    
+    return nodeid2bestmatch[nodenum-1] #return results for root
+        
+#calculate average patterns
 avPattern(patternfile, outpatternfile)
+
+#run dNWA
+#python ../pairwise-dNWA/dNWA.py outpattern3.txt
+cmd1 = f'python {dnwa_path}/dNWA.py {outpatternfile}'
+subprocess.call(cmd1,shell=True)
+
+#outputfile will be called: alignments_outpattern3.txt
+alnfile = f'alignments_{outpatternfile}'
+
+alnfile_format = f'alignments_formatted_{outpatternfile}'
+
+alncluster = f'alignments_formatted_{outpatternfile}.newick'
+
+#run parsing of output
+#parse dNWA output, get formatted version and cluster tree for av patterns
+#python /home/sarah/projects/cogupdate/phylocog/aln2tree/dAlnParsing.py -v -o alignments_outpattern3_formatted.txt -p outpattern3_formatted.newick alignments_outpattern3.txt
+#format: >pid1,seqid1,>pid2,seqid2,totalscore,alnlength
+#>0,avgPattern-P0,>1,avgPattern-P1,1951,326
+cmd2 = f'python {alnparse_path}/dAlnParsing.py -o {alnfile_format} -p {alncluster} {alnfile}'
+subprocess.call(cmd2,shell=True)
+
+#read formatted alignment file and store in a dictionary, normalize scores!
+aln2score = read_dNWA_aln(alnfile) #this includes self alignments
+
+#call sankoff algorithm to calculate score for 
+finalscore = sankoff(aln2score,inputtree,outputtree)
+
+print(finalscore)
