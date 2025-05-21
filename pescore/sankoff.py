@@ -223,10 +223,12 @@ def sankoff(aln2score,inputtree,outputtree):
                 for vp in unique_pids:
                     prevsc1 = dpm[(vp,curid-1)]
                     dist1 = aln2score[(up,vp)]
-                    labnscore1.append((vp,prevsc1+dist1))
+                    sum1 = prevsc1+dist1
+                    labnscore1.append((vp,sum1))
                     prevsc2 = dpm[(vp,curid-2)]
                     dist2 = aln2score[(up,vp)]
-                    labnscore2.append((vp,prevsc2+dist2))
+                    sum2 = prevsc2+dist2
+                    labnscore2.append((vp,sum2))
                 #get min from both lists
                 labnscore1.sort(key=lambda x:x[1])
                 min1 = labnscore1[0]
@@ -236,6 +238,7 @@ def sankoff(aln2score,inputtree,outputtree):
                 curlab2min.append((up,min1+min2))
             curlab2min.sort(key=lambda x:x[1])
             nodeid2bestmatch[curid] = (curlab2min[0][0],curlab2min[0][1])
+        curid+=1
     print(nodeid2bestmatch)
     #recreate the tree with internal node labels corresponding to the best fitting labels
     
