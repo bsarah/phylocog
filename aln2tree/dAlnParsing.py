@@ -252,7 +252,7 @@ def scoringFun(i,j):
     return score
 
 
-def calcDistMat(id2aln, id2selfaln, distmatfile):
+def calcDistMat(id2aln, id2selfaln, distmatfile, treeprotname):
     #create distance matrix for pairs of IDs in id2selfaln
     #calculation based on Feng-Doolittle algorithm
     #https://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Feng-Doolittle
@@ -266,7 +266,8 @@ def calcDistMat(id2aln, id2selfaln, distmatfile):
     #Ne,No number of gap openings and gap extensions
     #alpha/beta: parameters from Gotoh (-3,-1) or from our alignment algorithm, we only use -1, no gap extensions, thus use -(number of gaps)
     print("calculating distances")
-    outd = open(distmatfile,"a")
+    if(distmatfile):
+        outd = open(distmatfile,"a")
     idlist = list(id2selfaln.keys())
     numids = len(idlist)
     data = [[0 for x in range(numids)] for y in range(numids)] 
@@ -347,10 +348,24 @@ def calcDistMat(id2aln, id2selfaln, distmatfile):
 
     dm = DistanceMatrix(data, idlist)
     tree = nj(dm)
+    curnodeid = 0
+    #go through tree and add internal node names
+    for node in pretree.postorder():
+        if(node.is_root()):
+            tmpname = "r"+str(curnodeid)
+            node.name = tmpname
+        elif(node.has_children()):
+            tmpname = "i"+str(curnodeid)+"i"
+            node.name = tmpname
+        else:
+            tmpname = ""
+            #we don't want to overwrite the leave names!
+        curnodeid+=1
     #print(tree.ascii_art())
-    newick_str = nj(dm, result_constructor=str)
+    tree.write(treeprotname)
+    #newick_str = nj(dm, result_constructor=str)
     #    print(newick_str[:55], "...")
-    return newick_str
+    #return newick_str
     #print(newick_str)
     #in a different script?
     #use neighbor joining with midpoint rooting to construct the tree?
@@ -500,11 +515,7 @@ def main():
         file1.close()
 
 
-    newick_str = calcDistMat(id2aln, id2selfaln,distmatfile)
-
-    outt = open(treeprotname,"w")
-    outt.write(newick_str)
-    outt.close()
+    calcDistMat(id2aln, id2selfaln,distmatfile,treeprotname)
 
     #reformatting is not necessary here
     #reformat(protID2geneid)

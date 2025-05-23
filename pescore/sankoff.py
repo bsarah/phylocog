@@ -4,6 +4,7 @@ from io import StringIO
 from skbio import read
 from skbio.tree import TreeNode
 import subprocess
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--intree", help="tree in newick format")
@@ -279,6 +280,7 @@ def sankoff(aln2score,inputtree,outputtree):
     return nodeid2bestmatch[nodenum-1] #return results for root
         
 #calculate average patterns
+cwd = os.getcwd()
 avPattern(patternfile, outpatternfile)
 
 #run dNWA
