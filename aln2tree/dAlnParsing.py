@@ -158,6 +158,8 @@ def readInput(filename):
             if(pline[0] == ">"):
                 line = pline.strip()
                 lc = line.split(',')
+                if(len(lc) < 3):
+                    continue
                 #check for self alignment
                 if(lc[1] == lc[3]):
                     id2selfaln[lc[1]] = (lc[4],lc[5])
