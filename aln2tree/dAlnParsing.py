@@ -187,6 +187,9 @@ def readInput(filename):
                     seq1 = tmpl
                 else:
                     seq2 = tmpl
+        if(curid not in id2aln):
+            #go through seq1 and seq2 to get the same number of tuples and matching indices
+            id2aln[curid] = formatAln(seq1,seq2)
     return((id2aln,id2selfaln))
 
 
@@ -249,7 +252,7 @@ def scoringFun(i,j):
     return score
 
 
-def calcDistMat(id2aln, id2selfaln):
+def calcDistMat(id2aln, id2selfaln, distmatfile):
     #create distance matrix for pairs of IDs in id2selfaln
     #calculation based on Feng-Doolittle algorithm
     #https://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Feng-Doolittle
@@ -262,6 +265,8 @@ def calcDistMat(id2aln, id2selfaln):
     #Na(x), Nb(y) number of characters x,y in sequences a,b
     #Ne,No number of gap openings and gap extensions
     #alpha/beta: parameters from Gotoh (-3,-1) or from our alignment algorithm, we only use -1, no gap extensions, thus use -(number of gaps)
+    print("calculating distances")
+    outd = open(distmatfile,"a")
     idlist = list(id2selfaln.keys())
     numids = len(idlist)
     data = [[0 for x in range(numids)] for y in range(numids)] 
@@ -334,18 +339,17 @@ def calcDistMat(id2aln, id2selfaln):
         kid2 = idlist.index(ks[3])
         data[kid1][kid2] = Sdist
         data[kid2][kid1] = Sdist
+        if(distmatfile):
+            outstr1 = f'{ks[1]}\t{ks[3]}\t{Sdist}\n'
+            outstr2 = f'{ks[3]}\t{ks[1]}\t{Sdist}\n'
+            outd.write(outstr1)
+            outd.write(outstr2)
+
     dm = DistanceMatrix(data, idlist)
-    if(distmatfile):
-        #write dm to distmatfile
-        print("write distance matrix to file")
-    
     tree = nj(dm)
     #print(tree.ascii_art())
     newick_str = nj(dm, result_constructor=str)
     #    print(newick_str[:55], "...")
-    outt = open(treeprotname,"w")
-    outt.write(newick_str)
-    outt.close()
     return newick_str
     #print(newick_str)
     #in a different script?
@@ -494,8 +498,13 @@ def main():
             protID2line[cols[3]] = line2
         
         file1.close()
-    
-    calcDistMat(id2aln, id2selfaln)
+
+
+    newick_str = calcDistMat(id2aln, id2selfaln,distmatfile)
+
+    outt = open(treeprotname,"w")
+    outt.write(newick_str)
+    outt.close()
 
     #reformatting is not necessary here
     #reformat(protID2geneid)

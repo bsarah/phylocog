@@ -102,11 +102,47 @@ colorlist.remove('blanchedalmond')
 colorlist.remove('lightpink')
 colorlist.remove('lightsteelblue')
 colorlist.remove('lightsalmon')
+colorlist.remove('navajowhite')
+
 
 pid2col = dict()
 
 
 def layout(node):
+    # Add node name to leaf nodes
+    if("-P" in node.name):
+        nname = node.name
+        #print(f'layout {nname}')
+        sn = nname.split('-')
+        pid = ""
+        for snelem in sn:
+            if len(snelem) > 1 and snelem[0] == 'P':
+                pid = snelem
+        curcol = "black"
+        if(pid in pid2col):
+            curcol = pid2col[pid]                
+        
+        F = TextFace(node.name, tight_text=True, fsize=50, ftype="Arial", fgcolor=curcol,bold=True)
+        faces.add_face_to_node(F, node, column=0, position="branch-right")
+    else:
+        #there are seuences without a pattern/sequences that have not been mapped by HMMER, hence take another color for them!
+        curcol = "black"
+        F = TextFace(node.name, tight_text=True, fsize=50, ftype="Arial", fgcolor=curcol,bold=True)
+        faces.add_face_to_node(F, node, column=0, position="branch-right")            
+
+    if("-a" in node.name):
+        node.set_style(nst2)
+    elif("-b" in node.name):
+        node.set_style(nst1)
+    elif("-e" in node.name):
+        node.set_style(nst3)
+    else:
+        node.set_style(nst0)
+
+
+
+
+def layoutold(node):
     if node.is_leaf():
         # Add node name to leaf nodes
         if("-P" in node.name):
@@ -183,24 +219,25 @@ for node in t.traverse("postorder"):
     nname = node.name
     if('\'' in nname):
         nname = nname[1:-1]
-    if(node.is_leaf()):
-        #check Pid
-        if("-P" in nname):
-            sn = nname.split('-')
-            pid = ""
-            for snelem in sn:
-                if snelem[0] == 'P':
-                    pid = snelem
-            if pid not in pid2col:
-                if pid == "PX":
-                    pid2col[pid] = "black"
-                    pidprime = pid+"'"
-                    pid2col[pidprime] = "black"
-                else:
-                    pid2col[pid] = colorlist[curcolnum]
-                    pidprime = pid+"'"
-                    pid2col[pidprime] = colorlist[curcolnum]
-                    curcolnum+=1
+    #if(node.is_leaf()):
+    #check Pid
+    if("-P" in nname):
+        sn = nname.split('-')
+        pid = ""
+        for snelem in sn:
+            if snelem[0] == 'P':
+                pid = snelem
+        if pid not in pid2col:
+            if pid == "PX":
+                pid2col[pid] = "black"
+                pidprime = pid+"'"
+                pid2col[pidprime] = "black"
+            else:
+                pid2col[pid] = colorlist[curcolnum]
+                pidprime = pid+"'"
+                pid2col[pidprime] = colorlist[curcolnum]
+                curcolnum+=1
+            #print(f'{pid} with color {colorlist[curcolnum]}')
     
 
 
@@ -237,10 +274,10 @@ print("plotting..")
 
 ts = TreeStyle()
 #ts.legend.add_face(CircleFace(10, "red"), column=1)
-ts.show_leaf_name = False
+ts.show_leaf_name = True
 ts.show_branch_length = True
-ts.show_branch_support = True
-ts.mode = "r"
+#ts.show_branch_support = True
+ts.mode = "c"
 ts.layout_fn = layout
 ts.arc_start = 0 # 0 degrees = 3 o'clock
 ts.arc_span = 360

@@ -163,19 +163,19 @@ def read_dNWA_aln(alnfile):
     with open(alnfile) as f:
         for line in f:
             curline = line.strip()
-            if(curline[0] == '>'): #id line
-                ls = curline.split(',')
-                preid1 = ls[0]
-                id1 = int(preid1[1:])
-                preid2 = ls[2]
-                id2 = int(preid2[1:])
-                score = int(ls[4])
-                length = int(ls[5])
-                nscore = round(score/length,2)
-                alnid1 = (id1,id2)
-                alnid2 = (id2,id1)
-                aln2score[alnid1] = nscore
-                aln2score[alnid2] = nscore
+            ls = curline.split('\t')
+            preid1 = ls[0]
+            ps1 = preid1.split('-')
+            id1 = int(ps1[-1][1:])
+            preid2 = ls[1]
+            ps2 = preid2.split('-')
+            id2 = int(ps2[-1][1:])
+            nscore = round(float(ls[2]),3)
+            alnid1 = (id1,id2)
+            alnid2 = (id2,id1)
+            aln2score[alnid1] = nscore
+            aln2score[alnid2] = nscore
+    #print(aln2score)
     return aln2score
 
 
@@ -189,6 +189,7 @@ def sankoff(aln2score,inputtree,outputtree):
         kks.append(b)
 
     unique_pids = list(set(kks))
+    #print(unique_pids)
     #we need a DP matrix node IDs vs labels
     #postorder node IDs!
     #outfile = open(outputtree,"w")
@@ -196,7 +197,7 @@ def sankoff(aln2score,inputtree,outputtree):
     pretree = read(inputtree, format="newick", into=TreeNode)
     pretree.bifurcate()
 #    print(pretree)
-    print(pretree.ascii_art())
+    #print(pretree.ascii_art())
     nodenum = pretree.count()
 
     #create matrix
@@ -273,7 +274,7 @@ def sankoff(aln2score,inputtree,outputtree):
         if(node.name in nodename2update):
             node.name = nodename2update[node.name]
     #print(pretree)
-    print(pretree.ascii_art())
+    #print(pretree.ascii_art())
     pretree.write(outputtree,format='newick')
     return nodeid2bestmatch[nodenum-1] #return results for root
         
@@ -292,16 +293,17 @@ alnfile_format = f'alignments_formatted_{outpatternfile}'
 
 alncluster = f'alignments_formatted_{outpatternfile}.newick'
 
+alndistmat = f'distancematrix_formatted_{outpatternfile}.tsv'
 #run parsing of output
 #parse dNWA output, get formatted version and cluster tree for av patterns
 #python /home/sarah/projects/cogupdate/phylocog/aln2tree/dAlnParsing.py -v -o alignments_outpattern3_formatted.txt -p outpattern3_formatted.newick alignments_outpattern3.txt
 #format: >pid1,seqid1,>pid2,seqid2,totalscore,alnlength
 #>0,avgPattern-P0,>1,avgPattern-P1,1951,326
-cmd2 = f'python {alnparse_path}/dAlnParsing.py -o {alnfile_format} -p {alncluster} {alnfile}'
+cmd2 = f'python {alnparse_path}/dAlnParsing.py -o {alnfile_format} -p {alncluster} -d {alndistmat} {alnfile}'#we need the distance matrix as Neya's program calculates similarity scores!
 subprocess.call(cmd2,shell=True)
 
 #read formatted alignment file and store in a dictionary, normalize scores!
-aln2score = read_dNWA_aln(alnfile) #this includes self alignments
+aln2score = read_dNWA_aln(alndistmat) #this includes self alignments
 
 #call sankoff algorithm to calculate score for 
 finalscore = sankoff(aln2score,inputtree,outputtree)
