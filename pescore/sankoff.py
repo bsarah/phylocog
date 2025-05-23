@@ -44,8 +44,8 @@ else:
 
 
 ##set path to domain alignment if needed
-dnwa_path = "../pairwise-dNWA"
-alnparse_path = "../aln2tree"
+dnwa_path = "/home/sarah/projects/cogupdate/phylocog/pairwise-dNWA"
+alnparse_path = "/home/sarah/projects/cogupdate/phylocog/aln2tree"
 
 ##calculate the average pattern in case a pattern has more than 1 sequence
 def avPattern(patternfile, outpatternfile):
@@ -140,12 +140,25 @@ def avPattern(patternfile, outpatternfile):
     clus2avranges = dict() #take the average in case of 
     for (clusid,v) in clus2ranges.items():
         newv = []
+        #use realv in order to check that the next start coordinate is larger than current end coordinate, otherwise, dNWA will throw an error
+        realv = []
+        realv.append((0,0,"START"))
         for (xs,ys,z) in v:
             #print(f'averaging: xs {xs}, ys {ys}')
             avxs = int(sum(xs)/len(xs))
             avys = int(sum(ys)/len(ys))
+            (pa,pb,pc) = realv[-1]
+            if (avys < pa):
+                avys = pa+1
             newv.append(f'({avxs},{avys},{z})')
+            realv.append((avxs,avys,z))
+        #print(clusid)
+        #print(realv)
         (a,b) = clus2maxend[clusid]
+        #print(f'END {a} {b}')
+        (pa,pb,pc) = realv[-1]
+        if(a<pb):
+            a=pb+1
         newv.append(f'({a},{b},END)')
         #print(f'result {newv}')
         #print(clusid2label[clusid])
@@ -280,7 +293,7 @@ def sankoff(aln2score,inputtree,outputtree):
     return nodeid2bestmatch[nodenum-1] #return results for root
         
 #calculate average patterns
-cwd = os.getcwd()
+#cwd = os.getcwd()
 avPattern(patternfile, outpatternfile)
 
 #run dNWA

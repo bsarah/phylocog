@@ -350,7 +350,7 @@ def calcDistMat(id2aln, id2selfaln, distmatfile, treeprotname):
     tree = nj(dm)
     curnodeid = 0
     #go through tree and add internal node names
-    for node in pretree.postorder():
+    for node in tree.postorder():
         if(node.is_root()):
             tmpname = "r"+str(curnodeid)
             node.name = tmpname
