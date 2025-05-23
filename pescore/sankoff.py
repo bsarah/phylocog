@@ -140,14 +140,14 @@ def avPattern(patternfile, outpatternfile):
     for (clusid,v) in clus2ranges.items():
         newv = []
         for (xs,ys,z) in v:
-            print(f'averaging: xs {xs}, ys {ys}')
+            #print(f'averaging: xs {xs}, ys {ys}')
             avxs = int(sum(xs)/len(xs))
             avys = int(sum(ys)/len(ys))
             newv.append(f'({avxs},{avys},{z})')
         (a,b) = clus2maxend[clusid]
         newv.append(f'({a},{b},END)')
-        print(f'result {newv}')
-        print(clusid2label[clusid])
+        #print(f'result {newv}')
+        #print(clusid2label[clusid])
         clus2avranges[clusid] = newv
         outstr = f'avgPattern-P{clusid} (0,0,START)'
         for xs in newv:
@@ -166,9 +166,9 @@ def read_dNWA_aln(alnfile):
             if(curline[0] == '>'): #id line
                 ls = curline.split(',')
                 preid1 = ls[0]
-                id1 = preid1[1:]
+                id1 = int(preid1[1:])
                 preid2 = ls[2]
-                id2 = preid2[1:]
+                id2 = int(preid2[1:])
                 score = int(ls[4])
                 length = int(ls[5])
                 nscore = round(score/length,2)
@@ -191,10 +191,12 @@ def sankoff(aln2score,inputtree,outputtree):
     unique_pids = list(set(kks))
     #we need a DP matrix node IDs vs labels
     #postorder node IDs!
-    outfile = open(outputtree,"w")
+    #outfile = open(outputtree,"w")
 
     pretree = read(inputtree, format="newick", into=TreeNode)
     pretree.bifurcate()
+#    print(pretree)
+    print(pretree.ascii_art())
     nodenum = pretree.count()
 
     #create matrix
@@ -205,43 +207,74 @@ def sankoff(aln2score,inputtree,outputtree):
             dpm[(up,i)] = maxval
 
     nodeid2bestmatch = dict()
+    nodename2id = dict()
+    nodename2update = dict()
     curid = 0 #for postorder traversal
     for node in pretree.postorder():
+        #print(f'curid {curid}')
         if(node.is_tip()):
             nns = node.name.split('-')
             prelab = nns[-1]
             nodelabel = int(prelab[1:])
+            #print(f'enter leaves: {nodelabel} {curid}')
             dpm[(nodelabel,curid)] = 0
             nodeid2bestmatch[curid] = (nodelabel,0)
+            nodename2id[node.name] = curid         
         else:
-            #calculate score from children nodes (curid-1 and curid -2) for all possible labels
+            #calculate score from children nodes for all possible labels
             #fill dpm[(up,curid)] for current node
             curlab2min = []
+            nodename2id[node.name] = curid
+            child1 = node.children[0]
+            c1name = child1.name
+            c1id = nodename2id[c1name]
+            #print(f'child1 {c1name} {c1id}')
+            if(len(node.children) > 1):
+                child2 = node.children[1]
+                c2name = child2.name
+                c2id = nodename2id[c2name]
+                #print(f'child2 {c2name} {c2id}')
             for up in unique_pids:
+                #print(f'cur up {up}')
                 labnscore1 = [] #store labels with scores for child1
                 labnscore2 = [] #store labels with scores for child2
                 for vp in unique_pids:
-                    prevsc1 = dpm[(vp,curid-1)]
+                    #print(f'cur vp {vp}')
+                    prevsc1 = dpm[(vp,c1id)]
                     dist1 = aln2score[(up,vp)]
+                    #print(f'prevsc1 {prevsc1} dist1 {dist1}')
                     sum1 = prevsc1+dist1
                     labnscore1.append((vp,sum1))
-                    prevsc2 = dpm[(vp,curid-2)]
-                    dist2 = aln2score[(up,vp)]
-                    sum2 = prevsc2+dist2
-                    labnscore2.append((vp,sum2))
+                    if(len(node.children) > 1):
+                        prevsc2 = dpm[(vp,c2id)]
+                        dist2 = aln2score[(up,vp)]
+                        #print(f'prevsc2 {prevsc2} dist2 {dist2}')
+                        sum2 = prevsc2+dist2
+                        labnscore2.append((vp,sum2))
                 #get min from both lists
                 labnscore1.sort(key=lambda x:x[1])
-                min1 = labnscore1[0]
-                labnscore2.sort(key=lambda x:x[1])
-                min2 = labnscore2[0]
-                dpm[(up,curid)] = min1+min2
-                curlab2min.append((up,min1+min2))
+                min1 = labnscore1[0][1]
+                min2 = 0
+                if(len(node.children) > 1):
+                    labnscore2.sort(key=lambda x:x[1])
+                    min2 = labnscore2[0][1]
+                #print(f'min1 {min1} min2 {min2}')
+                curscore = round(min1+min2,2)
+                dpm[(up,curid)] = curscore
+                curlab2min.append((up,curscore))
             curlab2min.sort(key=lambda x:x[1])
             nodeid2bestmatch[curid] = (curlab2min[0][0],curlab2min[0][1])
+            nodename2update[node.name] = f'{node.name}-{curlab2min[0][1]}-P{curlab2min[0][0]}'
         curid+=1
-    print(nodeid2bestmatch)
+    #print(nodeid2bestmatch)
+
     #recreate the tree with internal node labels corresponding to the best fitting labels
-    
+    for node in pretree.postorder():
+        if(node.name in nodename2update):
+            node.name = nodename2update[node.name]
+    #print(pretree)
+    print(pretree.ascii_art())
+    pretree.write(outputtree,format='newick')
     return nodeid2bestmatch[nodenum-1] #return results for root
         
 #calculate average patterns
@@ -272,5 +305,9 @@ aln2score = read_dNWA_aln(alnfile) #this includes self alignments
 
 #call sankoff algorithm to calculate score for 
 finalscore = sankoff(aln2score,inputtree,outputtree)
-
 print(finalscore)
+
+#calculate split nodes?
+
+
+
