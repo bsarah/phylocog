@@ -106,7 +106,7 @@ for node in pretree.postorder():
             #there are quotes around the node names because: If your node names contain spaces or special characters, quotes will be added automatically for Newick format validity
         else:
             #            print(f'{protid} not in protid2treeid')
-            node.name = node.name+"PX" #add X for unknown pattern
+            node.name = node.name+"-PX" #add X for unknown pattern
 
     else:
         if(node.is_root()):

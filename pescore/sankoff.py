@@ -74,6 +74,7 @@ def avPattern(patternfile, outpatternfile):
                 curann = cs2[-1]
                 clusid2label[curclusid] = curline
             else: #line describing one sequence
+                #>avgPattern-P0 (0,0,START) (92,160,109.54.1.1) (199,317,266.1.1.1) (330,340,END)
                 dseq = curline.split(" ")[2:] #this is the domain sequence including end but without start
                 #print(dseq)
                 prestr = dseq[-1][1:-1] #END tag
@@ -174,22 +175,34 @@ def avPattern(patternfile, outpatternfile):
 
 def read_dNWA_aln(alnfile):
     aln2score = dict() #aln between two patterns -> normalized score
+    xlab = 'X' #include 'no-sequence-score'
+    maxval = 100000
     with open(alnfile) as f:
         for line in f:
             curline = line.strip()
             ls = curline.split('\t')
             preid1 = ls[0]
             ps1 = preid1.split('-')
-            id1 = int(ps1[-1][1:])
+            id1 = ps1[-1][1:]
             preid2 = ls[1]
             ps2 = preid2.split('-')
-            id2 = int(ps2[-1][1:])
+            id2 = ps2[-1][1:]
             nscore = round(float(ls[2]),3)
             alnid1 = (id1,id2)
             alnid2 = (id2,id1)
             aln2score[alnid1] = nscore
             aln2score[alnid2] = nscore
+            alnidx2 = (xlab,id2)
+            alnid2x = (id2,xlab)
+            alnidx1 = (xlab,id1)
+            alnid1x = (id1,xlab)
+            aln2score[alnid1x] = 0
+            aln2score[alnidx1] = 0
+            aln2score[alnid2x] = 0
+            aln2score[alnidx2] = 0
     #print(aln2score)
+    alnidxx = (xlab,xlab)
+    aln2score[alnidxx] = maxval
     return aln2score
 
 
@@ -230,7 +243,7 @@ def sankoff(aln2score,inputtree,outputtree):
         if(node.is_tip()):
             nns = node.name.split('-')
             prelab = nns[-1]
-            nodelabel = int(prelab[1:])
+            nodelabel = prelab[1:]
             #print(f'enter leaves: {nodelabel} {curid}')
             dpm[(nodelabel,curid)] = 0
             nodeid2bestmatch[curid] = (nodelabel,0)
@@ -294,10 +307,12 @@ def sankoff(aln2score,inputtree,outputtree):
         
 #calculate average patterns
 #cwd = os.getcwd()
+print(f'create {outpatternfile}')
 avPattern(patternfile, outpatternfile)
 
 #run dNWA
 #python ../pairwise-dNWA/dNWA.py outpattern3.txt
+print(f'create alignments_{outpatternfile}')
 cmd1 = f'python {dnwa_path}/dNWA.py {outpatternfile}'
 subprocess.call(cmd1,shell=True)
 
@@ -314,12 +329,14 @@ alndistmat = f'distancematrix_formatted_{outpatternfile}.tsv'
 #python /home/sarah/projects/cogupdate/phylocog/aln2tree/dAlnParsing.py -v -o alignments_outpattern3_formatted.txt -p outpattern3_formatted.newick alignments_outpattern3.txt
 #format: >pid1,seqid1,>pid2,seqid2,totalscore,alnlength
 #>0,avgPattern-P0,>1,avgPattern-P1,1951,326
+print(f'create {alnfile_format} {alncluster} {alndistmat}')
 cmd2 = f'python {alnparse_path}/dAlnParsing.py -o {alnfile_format} -p {alncluster} -d {alndistmat} {alnfile}'#we need the distance matrix as Neya's program calculates similarity scores!
 subprocess.call(cmd2,shell=True)
 
 #read formatted alignment file and store in a dictionary, normalize scores!
 aln2score = read_dNWA_aln(alndistmat) #this includes self alignments
 
+print(f'create {outputtree}')
 #call sankoff algorithm to calculate score for 
 finalscore = sankoff(aln2score,inputtree,outputtree)
 print(finalscore)
