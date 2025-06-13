@@ -209,6 +209,7 @@ def read_dNWA_aln(alnfile):
 
 def sankoff(aln2score,inputtree,outputtree):
     #possible labels can be found in the dictionary
+    xlab = 'X' #include 'no-sequence-score', this is not allowed at the internal nodes! no propagation of X towards the root
     ks = list(aln2score.keys())
     kks = []
     for (a,b) in ks:
@@ -263,6 +264,9 @@ def sankoff(aln2score,inputtree,outputtree):
                 c2id = nodename2id[c2name]
                 #print(f'child2 {c2name} {c2id}')
             for up in unique_pids:
+                if(up == xlab):
+                    #skip xlab for internal nodes
+                    continue
                 #print(f'cur up {up}')
                 labnscore1 = [] #store labels with scores for child1
                 labnscore2 = [] #store labels with scores for child2
