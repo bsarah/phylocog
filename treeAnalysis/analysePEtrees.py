@@ -8,7 +8,11 @@ from skbio.tree import TreeNode
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--intree", help="tree in newick format with node labels, sankoff output")
-parser.add_argument("-o", "--outtable", help="table with calculates tree scores")
+parser.add_argument("-c", "--cogid", help="COGid for the output")
+parser.add_argument("-f", "--fcat", help="functional category")
+parser.add_argument("-a", "--asciitree", help="print ascii tree")
+#parser.add_argument("-o", "--outtable", help="table with calculates tree scores")
+
 
 args = parser.parse_args()
 
@@ -19,12 +23,25 @@ else:
     print("no inputtree given!\n")
     exit
 
-outputfile = ""
-if args.outtable:
-    outputfile = args.outtable
-else:
-    print("no output table given!\n")
-    exit
+cogid = "COGXXXX"
+fcat = "XX"
+
+if(args.cogid):
+    cogid = args.cogid
+
+if(args.fcat):
+    fcat = args.fcat
+
+asciitree = False
+if(args.asciitree):
+    asciitree = True
+    
+#outputfile = ""
+#if args.outtable:
+#    outputfile = args.outtable
+#else:
+#    print("no output table given!\n")
+#    exit
 
 
 
@@ -137,8 +154,8 @@ for node in pretree.preorder():
             numsplits+=1
             node2deflabel[node.name] = list(ownlabs)[0]
 
-
-print(pretree.ascii_art())
+if(asciitree):
+    print(pretree.ascii_art())
             
 #output file header:
 #COG numa numb numx numtotal numpattern funcCat numsplits S_root delta_S_splits delta_S_nonsplit
@@ -147,8 +164,8 @@ if(numsplits > 0):
     avdeltasplits = round(sumsplitscores/numsplits,2)
 nonsplitbranches = numbranches-numsplits
 avdeltanonsplits = round(sumnonsplitscores/nonsplitbranches,2)
-print(f'cogid\tnuma\tnumb\tnume\tnumx\tnumtotal\tnumpattern\tfcat\tnumsplits\ts_root\tavdelta_splits\tavdelta_nonsplits')
-print(f'COGID\t{numa}\t{numb}\t{nume}\t{numx}\t{numa+numb+nume+numx}\t{len(patterns)}\tFUNCAT\t{numsplits}\t{rootscore}\t{avdeltasplits}\t{avdeltanonsplits}')
+#print(f'COGid\tnuma\tnumb\tnume\tnumx\tnumtotal\tnumpattern\tfcat\tnumsplits\ts_root\tavdelta_splits\tavdelta_nonsplits')
+print(f'{cogid}\t{numa}\t{numb}\t{nume}\t{numx}\t{numa+numb+nume+numx}\t{len(patterns)}\t{fcat}\t{numsplits}\t{rootscore}\t{avdeltasplits}\t{avdeltanonsplits}')
 
 
 #TODO:
