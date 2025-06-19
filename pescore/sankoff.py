@@ -9,8 +9,11 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--intree", help="tree in newick format")
 parser.add_argument("-p", "--inpat", help="list of patterns")
-parser.add_argument("-o", "--outpat", help="list of simplified patterns")
-parser.add_argument("-t", "--outtree", help="output tree in newick format")
+parser.add_argument("-c", "--cogid", help="COGid for the output")
+parser.add_argument("-f", "--fcat", help="functional category")
+parser.add_argument("-o", "--outfolder", help="folder for output files")
+#parser.add_argument("-o", "--outpat", help="list of simplified patterns")
+#parser.add_argument("-t", "--outtree", help="output tree in newick format")
 args = parser.parse_args()
 
 inputtree = ""
@@ -27,19 +30,32 @@ else:
     print("no patternfile given!\n")
     exit
 
-outpatternfile = ""
-if args.outpat:
-    outpatternfile = args.outpat
-else:
-    print("no output patternfile given!\n")
-    exit
+cogid = "COGXXXX"
+fcat = "XX"
+
+if(args.cogid):
+    cogid = args.cogid
+
+if(args.fcat):
+    fcat = args.fcat
 
 
-outputtree = ""
-if args.outtree:
-    outputtree = args.outtree
-else:
-    outputtree = inputtree+"-pescores.newick"
+outputfolder = "."
+if(args.outfolder):
+    outputfolder = args.outfolder
+#outpatternfile = ""
+#if args.outpat:
+#    outpatternfile = args.outpat
+#else:
+#    print("no output patternfile given!\n")
+#    exit
+
+
+#outputtree = ""
+#if args.outtree:
+#    outputtree = args.outtree
+#else:
+#    outputtree = inputtree+"-pescores.newick"
 
 
 
@@ -311,23 +327,27 @@ def sankoff(aln2score,inputtree,outputtree):
         
 #calculate average patterns
 #cwd = os.getcwd()
+base2=os.path.basename(patternfile)
+outpatternfile = f'{outputfolder}/averaged_{base2}'
+outpatname = f'averaged_{base2}'
+
 print(f'create {outpatternfile}')
 avPattern(patternfile, outpatternfile)
 
 #run dNWA
 #python ../pairwise-dNWA/dNWA.py outpattern3.txt
 print(f'create alignments_{outpatternfile}')
-cmd1 = f'python {dnwa_path}/dNWA.py {outpatternfile}'
+cmd1 = f'python {dnwa_path}/dNWA.py -o {outputfolder} {outpatternfile}'
 subprocess.call(cmd1,shell=True)
 
 #outputfile will be called: alignments_outpattern3.txt
-alnfile = f'alignments_{outpatternfile}'
+alnfile = f'{outputfolder}/alignments_{outpatname}'
 
-alnfile_format = f'alignments_formatted_{outpatternfile}'
+alnfile_format = f'{outputfolder}/alignments_formatted_{outpatname}'
 
-alncluster = f'alignments_formatted_{outpatternfile}.newick'
+alncluster = f'{outputfolder}/alignments_formatted_{outpatname}.newick'
 
-alndistmat = f'distancematrix_formatted_{outpatternfile}.tsv'
+alndistmat = f'{outputfolder}/distancematrix_formatted_{outpatname}.tsv'
 #run parsing of output
 #parse dNWA output, get formatted version and cluster tree for av patterns
 #python /home/sarah/projects/cogupdate/phylocog/aln2tree/dAlnParsing.py -v -o alignments_outpattern3_formatted.txt -p outpattern3_formatted.newick alignments_outpattern3.txt
@@ -340,10 +360,16 @@ subprocess.call(cmd2,shell=True)
 #read formatted alignment file and store in a dictionary, normalize scores!
 aln2score = read_dNWA_aln(alndistmat) #this includes self alignments
 
+base=os.path.basename(inputtree)
+#its = inputtree.split('/')
+#reipt = its[-1] #real input tree without outfolder
+
+outputtree = f'{outputfolder}/sankoff_{base}'
 print(f'create {outputtree}')
+
 #call sankoff algorithm to calculate score for 
 finalscore = sankoff(aln2score,inputtree,outputtree)
-print(finalscore)
+#print(f'{cogid} {finalscore}')
 
 #calculate split nodes?
 

@@ -10,6 +10,7 @@ from skbio import DistanceMatrix
 from skbio.tree import nj
 from skbio.tree import TreeNode
 #from skbio.tree import read
+import sys
 
 import re
 
@@ -347,6 +348,13 @@ def calcDistMat(id2aln, id2selfaln, distmatfile, treeprotname):
             outstr2 = f'{ks[3]}\t{ks[1]}\t{Sdist}\n'
             outd.write(outstr1)
             outd.write(outstr2)
+
+
+    if(len(data) <= 2):
+        continue
+        #skip creating the cluster tree if there are not enough nodes,
+        #this occurs when creating the averaged patterns and the tree of averaged patterns
+        #print(f'ERROR create distance matrix for {distmatfile}', file=sys.stderr)
 
     dm = DistanceMatrix(data, idlist)
     tree = nj(dm)

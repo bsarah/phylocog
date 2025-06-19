@@ -36,6 +36,7 @@ parser.add_argument('-l', '--log', help='set loglevel',action='store', const='IN
 parser.add_argument('-t', '--temp', help='keep temporary file with reformatted input',action='store_true')
 parser.add_argument('-s','--noselfalignment', help='Deactivate the alignment of every Sequence with itself',action='store_true')
 parser.add_argument('-g','--gapextension', help='Differentiate between gap openings and gap extensions',action='store_true')
+parser.add_argument('-o', '--outfolder',help="specifiy location for output files")
 args = parser.parse_args()
 
 # activate logging if -log is set. Set log level if provided, otherwise set INFO as default
@@ -43,7 +44,7 @@ if args.log:
 	numeric_level = args.log
 	substring = '.txt'
 	filename_wo_extension = os.path.basename(args.filename).replace(substring,'')
-	logging.basicConfig(filename='basic_log_'+filename_wo_extension+'.log', encoding='utf-8', filemode='w', format='%(levelname)s:%(message)s (%(asctime)s)', datefmt='%m/%d/%Y %I:%M:%S %p', level=numeric_level)
+	logging.basicConfig(filename=args.outfolder+'/'+'basic_log_'+filename_wo_extension+'.log', encoding='utf-8', filemode='w', format='%(levelname)s:%(message)s (%(asctime)s)', datefmt='%m/%d/%Y %I:%M:%S %p', level=numeric_level)
 
 # define functions
 def transformRawInput():
@@ -63,7 +64,7 @@ def transformRawInput():
 		totalAccessions = 0
 		countedAccessions = 0
 		global number_of_lines_in_infile
-		filename = 'formatted_input_'+os.path.basename(args.filename)
+		filename = args.outfolder+'/'+'formatted_input_'+os.path.basename(args.filename)
 		
 		# Read the file line by line
 		line = infile.readline()
@@ -162,7 +163,7 @@ def transformRawInput():
 	
 def readInput():
 	"""Read the file into a list."""
-	filename = 'formatted_input_'+os.path.basename(args.filename)
+	filename = args.outfolder+'/'+'formatted_input_'+os.path.basename(args.filename)
 	with open(filename, "r") as f:
 		
 		# read the file into a list (with newlines) so that every line of the read file is one list entry
@@ -373,7 +374,7 @@ def traceback(name1,name2,value_list1,value_list2, matrix):
 
 	# build a string with names, score and length of alignment, set filename
 	first_line = name1 + ',' + name2 + ',' + score_alignment + ',' + str(alignmentlength)
-	filename = 'alignments_'+os.path.basename(args.filename)
+	filename = args.outfolder+'/'+'alignments_'+os.path.basename(args.filename)
 	
 	# write 3 lines in an outputfile (for every alignment)
 	with open(filename, 'a', encoding="utf-8") as file_alignments:
@@ -516,7 +517,7 @@ def writeHumanreadableOutput(name1,name2,score_alignment,alignmentlength,list_of
 	first_line = name1 + ',' + name2 + ',' + score_alignment
 	
 	# write data in an output file
-	with open('file_alignments_verbose_'+os.path.basename(args.filename), 'a', encoding="utf-8") as file_alignments:
+	with open(args.outfolder+'/'+'file_alignments_verbose_'+os.path.basename(args.filename), 'a', encoding="utf-8") as file_alignments:
 		write_data = file_alignments.write(first_line + '\n' + hAlignmentB + '\n' + hAlignmentA + '\n')
 	
 	if args.log:
@@ -557,8 +558,8 @@ def inputChecks():
 def deleteTempFiles():
 	"""Delete intermediate file."""
 	
-	if os.path.exists('formatted_input_'+os.path.basename(args.filename)):
-		os.remove('formatted_input_'+os.path.basename(args.filename))
+	if os.path.exists(args.outfolder+'/'+'formatted_input_'+os.path.basename(args.filename)):
+		os.remove(args.outfolder+'/'+'formatted_input_'+os.path.basename(args.filename))
 	else:
 		print('No file found to delete')
 		if args.log:

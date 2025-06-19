@@ -161,9 +161,9 @@ if(asciitree):
 #COG numa numb numx numtotal numpattern funcCat numsplits S_root delta_S_splits delta_S_nonsplit
 avdeltasplits = 0
 if(numsplits > 0):
-    avdeltasplits = round(sumsplitscores/numsplits,2)
+    avdeltasplits = round(sumsplitscores/numsplits,5)
 nonsplitbranches = numbranches-numsplits
-avdeltanonsplits = round(sumnonsplitscores/nonsplitbranches,2)
+avdeltanonsplits = round(sumnonsplitscores/nonsplitbranches,5)
 #print(f'COGid\tnuma\tnumb\tnume\tnumx\tnumtotal\tnumpattern\tfcat\tnumsplits\ts_root\tavdelta_splits\tavdelta_nonsplits')
 print(f'{cogid}\t{numa}\t{numb}\t{nume}\t{numx}\t{numa+numb+nume+numx}\t{len(patterns)}\t{fcat}\t{numsplits}\t{rootscore}\t{avdeltasplits}\t{avdeltanonsplits}')
 
