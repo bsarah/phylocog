@@ -334,6 +334,8 @@ def calcDistMat(id2aln, id2selfaln, distmatfile, treeprotname):
         #print(f'{Seff}')
         if(Seff < 0 and args.verbose):
             print(f'neg seff {Seff} for {sa} and {sb} ({k}): srand: {Srand}, lenab:{lenab}, smax: {Smax}, sab: {Sab}, saa: {saa}, sbb: {sbb}, lensa:{lensa}, lensb:{lensb}, gapsab: {gapsa},{gapsb}, totsum:{totsum}')
+        if(Seff == 0):
+            Seff = 0.001
         Sdist = -1 * math.log(Seff)
         if(Sdist < 0 and args.verbose):
             print(f'Distance < 0: {Sdist} for k:{k}')
@@ -350,36 +352,35 @@ def calcDistMat(id2aln, id2selfaln, distmatfile, treeprotname):
             outd.write(outstr2)
 
 
-    if(len(data) <= 2):
-        continue
+    if(len(data) > 2):
         #skip creating the cluster tree if there are not enough nodes,
         #this occurs when creating the averaged patterns and the tree of averaged patterns
         #print(f'ERROR create distance matrix for {distmatfile}', file=sys.stderr)
 
-    dm = DistanceMatrix(data, idlist)
-    tree = nj(dm)
-    curnodeid = 0
-    #go through tree and add internal node names
-    for node in tree.postorder():
-        if(node.is_root()):
-            tmpname = "r"+str(curnodeid)
-            node.name = tmpname
-        elif(node.has_children()):
-            tmpname = "i"+str(curnodeid)+"i"
-            node.name = tmpname
-        else:
-            tmpname = ""
-            #we don't want to overwrite the leave names!
-        curnodeid+=1
-    #print(tree.ascii_art())
-    tree.write(treeprotname)
-    #newick_str = nj(dm, result_constructor=str)
-    #    print(newick_str[:55], "...")
-    #return newick_str
-    #print(newick_str)
-    #in a different script?
-    #use neighbor joining with midpoint rooting to construct the tree?
-    #http://scikit-bio.org/docs/0.2.1/generated/skbio.tree.nj.html
+        dm = DistanceMatrix(data, idlist)
+        tree = nj(dm)
+        curnodeid = 0
+        #go through tree and add internal node names
+        for node in tree.postorder():
+            if(node.is_root()):
+                tmpname = "r"+str(curnodeid)
+                node.name = tmpname
+            elif(node.has_children()):
+                tmpname = "i"+str(curnodeid)+"i"
+                node.name = tmpname
+            else:
+                tmpname = ""
+                #we don't want to overwrite the leave names!
+            curnodeid+=1
+        #print(tree.ascii_art())
+        tree.write(treeprotname)
+        #newick_str = nj(dm, result_constructor=str)
+        #    print(newick_str[:55], "...")
+        #return newick_str
+        #print(newick_str)
+        #in a different script?
+        #use neighbor joining with midpoint rooting to construct the tree?
+        #http://scikit-bio.org/docs/0.2.1/generated/skbio.tree.nj.html
 
 
 #check for duplications

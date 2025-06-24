@@ -140,17 +140,18 @@ for node in pretree.preorder():
             ownscore = 0
         else:
             ownscore = float(nns[1])
-        deltas = parentscore-ownscore
+        #DONT USE DELTA BUT ABSOLUTE SCORES
+        #deltas = parentscore-ownscore
         #check if parentlab in ownlabs
         #if yes, take the parent label-->non-split branch
         #otherwise, take your own label-->split branch
         if(parentlab in ownlabs):
             #no split nodes
-            sumnonsplitscores += deltas
+            sumnonsplitscores += ownscore
             node2deflabel[node.name] = parentlab
         else:
             #split branch
-            sumsplitscores += deltas
+            sumsplitscores += ownscore
             numsplits+=1
             node2deflabel[node.name] = list(ownlabs)[0]
 
