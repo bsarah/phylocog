@@ -223,82 +223,90 @@ def read_dNWA_aln(alnfile):
 
 
 
+#def calculateChildOptimum(parentlabel, aln2score, unique_pids, dpm):
+    
+
+
+
 def sankoff(aln2score,inputtree,outputtree):
     #possible labels can be found in the dictionary
     xlab = 'X' #include 'no-sequence-score', this is not allowed at the internal nodes! no propagation of X towards the root
     ks = list(aln2score.keys())
     kks = []
     for (a,b) in ks:
-        kks.append(a)
-        kks.append(b)
+        kks.append(f'{a}')
+        kks.append(f'{b}')
 
     unique_pids = list(set(kks))
     #print(unique_pids)
     #we need a DP matrix node IDs vs labels
     #postorder node IDs!
     #outfile = open(outputtree,"w")
+    nodenames = []
 
+    #use idx function to get id of pid or node id
+    
     pretree = read(inputtree, format="newick", into=TreeNode)
     pretree.bifurcate()
 #    print(pretree)
     #print(pretree.ascii_art())
     nodenum = pretree.count()
-
-    #create matrix
-    maxval = 100000
-    dpm = dict()
-    for up in unique_pids:
-        for i in range(nodenum):
-            dpm[(up,i)] = maxval
-
-    nodeid2bestmatch = dict()
-    nodename2id = dict()
-    nodename2update = dict()
     curid = 0 #for postorder traversal
+    nodename2id = dict()
     for node in pretree.postorder():
-        #print(f'curid {curid}')
+#        if(node.is_tip()):
+#            nns = node.name.split('-')
+#            nodelabel = nns[-1]
+        nodenames.append(node.name)
+        nodename2id[node.name] = curid
+        curid+=1
+        
+    #create matrix and init    
+    maxval = 100000
+    w, h = len(unique_pids), len(nodenames) #h = rows
+    #access matrix with Matrix[h][w]
+    Matrix = [[maxval for x in range(w)] for y in range(h)] 
+
+    #forward step
+    for node in pretree.postorder():
+        nid = nodenames.index(node.name)
         if(node.is_tip()):
-            nns = node.name.split('-')
-            prelab = nns[-1]
-            nodelabel = prelab[1:]
             #print(f'enter leaves: {nodelabel} {curid}')
-            dpm[(nodelabel,curid)] = 0
-            nodeid2bestmatch[curid] = (nodelabel,0)
-            nodename2id[node.name] = curid         
+            nns = node.name.split('-')
+            nodelabel = nns[-1][1:]
+            pid = unique_pids.index(nodelabel)
+            Matrix[nid][pid] = 0
         else:
             #calculate score from children nodes for all possible labels
             #fill dpm[(up,curid)] for current node
-            curlab2min = []
-            nodename2id[node.name] = curid
             child1 = node.children[0]
             c1name = child1.name
-            c1id = nodename2id[c1name]
+            c1id = nodenames.index(c1name)
             #print(f'child1 {c1name} {c1id}')
             if(len(node.children) > 1):
                 child2 = node.children[1]
                 c2name = child2.name
-                c2id = nodename2id[c2name]
+                c2id = nodenames.index(c2name)
                 #print(f'child2 {c2name} {c2id}')
             for up in unique_pids:
+                #assume current node has label up, calculate possible scores for children and take mininmum
+                uid = unique_pids.index(up)
                 if(up == xlab):
                     #skip xlab for internal nodes
                     continue
-                #print(f'cur up {up}')
                 labnscore1 = [] #store labels with scores for child1
                 labnscore2 = [] #store labels with scores for child2
                 for vp in unique_pids:
-                    #print(f'cur vp {vp}')
-                    prevsc1 = dpm[(vp,c1id)]
-                    dist1 = aln2score[(up,vp)]
-                    #print(f'prevsc1 {prevsc1} dist1 {dist1}')
-                    sum1 = prevsc1+dist1
-                    labnscore1.append((vp,sum1))
+                    #print(vp)
+                    if(vp == xlab):
+                        #skip xlab for internal nodes
+                        continue
+                    vid = unique_pids.index(vp)
+                    c1score = Matrix[c1id][vid]+aln2score[(up,vp)]
+                    labnscore1.append((vp,c1score))
                     if(len(node.children) > 1):
-                        prevsc2 = dpm[(vp,c2id)]
-                        dist2 = aln2score[(up,vp)]
-                        #print(f'prevsc2 {prevsc2} dist2 {dist2}')
-                        sum2 = prevsc2+dist2
-                        labnscore2.append((vp,sum2))
+                        c2score = Matrix[c2id][vid]+aln2score[(up,vp)]
+                        labnscore2.append((vp,c2score))
                 #get min from both lists
                 labnscore1.sort(key=lambda x:x[1])
                 min1 = labnscore1[0][1]
@@ -306,24 +314,70 @@ def sankoff(aln2score,inputtree,outputtree):
                 if(len(node.children) > 1):
                     labnscore2.sort(key=lambda x:x[1])
                     min2 = labnscore2[0][1]
-                #print(f'min1 {min1} min2 {min2}')
+                #print(f'up {up} at {curid} min1 {min1} min2 {min2}')
                 curscore = round(min1+min2,2)
-                dpm[(up,curid)] = curscore
-                curlab2min.append((up,curscore))
-            curlab2min.sort(key=lambda x:x[1])
-            nodeid2bestmatch[curid] = (curlab2min[0][0],curlab2min[0][1])
-            nodename2update[node.name] = f'{node.name}-{curlab2min[0][1]}-P{curlab2min[0][0]}'
-        curid+=1
-    #print(nodeid2bestmatch)
-
-    #recreate the tree with internal node labels corresponding to the best fitting labels
+                Matrix[nid][uid] = curscore
+    #DP matrix dpm is filled, do backtracking to find the optimal solution for the complete tree
+#    print("forward step done\n")
+#    upstr = ' '.join(unique_pids)
+#    print(f'{upstr}\n')
+#    for v in range(nodenum):
+#        linestr = f'{v} '
+#        for pp in range(len(unique_pids)):
+#            linestr+=f'{Matrix[v][pp]} '
+#        print(f'{linestr}\n')
+    ####BACKTRACK
+    nodename2bestpid = dict() #nodename -> pid
+    nodename2update = dict()
+    rootscore = 0
+    rootlabel = ""
+    for node in pretree.preorder():
+        nid = nodenames.index(node.name)
+        if(node.is_root()):
+            minpid = len(unique_pids)+2
+            minscore = maxval
+            for t in range(len(Matrix[nid])):
+                cursc = Matrix[nid][t]
+                if(cursc < minscore):
+                    minpid = t
+                    minscore = cursc 
+            #mindpid is the label chosen for the current node
+            nodename2bestpid[node.name] = minpid
+            nodename2update[node.name] = f'{node.name}-{minscore}-P{unique_pids[minpid]}'
+            rootscore = minscore
+            rootlabel = unique_pids[minpid]
+        else:
+            parentname = node.parent.name
+            pnid = nodenames.index(parentname)
+            ppid = nodename2bestpid[parentname]
+            pp = unique_pids[ppid]
+            #calculate the own best score + label based on the parent label set
+            labnscore1 = [] #store labels with scores for this node
+            for vp in unique_pids:
+                if(vp == xlab):
+                    #skip xlab for internal nodes
+                    continue
+                vid = unique_pids.index(vp)
+                c1score = Matrix[nid][vid]+aln2score[(pp,vp)]
+                labnscore1.append((vp,c1score))
+            #get min from both lists
+            labnscore1.sort(key=lambda x:x[1])
+            min1 = labnscore1[0][1]
+            minp = labnscore1[0][0]
+            if(not node.is_tip()):
+                #only for inner nodes!
+                #mindpid is the label chosen for the current node
+                nodename2bestpid[node.name] = unique_pids.index(minp)
+                nodename2update[node.name] = f'{node.name}-{min1}-P{minp}'
+                
+    #    #recreate the tree with internal node labels corresponding to the best fitting labels
     for node in pretree.postorder():
         if(node.name in nodename2update):
             node.name = nodename2update[node.name]
     #print(pretree)
     #print(pretree.ascii_art())
     pretree.write(outputtree,format='newick')
-    return nodeid2bestmatch[nodenum-1] #return results for root
+    return (rootscore,rootlabel)
         
 #calculate average patterns
 #cwd = os.getcwd()
@@ -369,7 +423,7 @@ print(f'create {outputtree}')
 
 #call sankoff algorithm to calculate score for 
 finalscore = sankoff(aln2score,inputtree,outputtree)
-#print(f'{cogid} {finalscore}')
+print(f'{cogid} {finalscore}')
 
 #calculate split nodes?
 
