@@ -5,6 +5,7 @@ from skbio import read
 from skbio.tree import TreeNode
 import subprocess
 import os
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--intree", help="tree in newick format")
@@ -62,6 +63,11 @@ if(args.outfolder):
 ##set path to domain alignment if needed
 dnwa_path = "/home/sarah/projects/cogupdate/phylocog/pairwise-dNWA"
 alnparse_path = "/home/sarah/projects/cogupdate/phylocog/aln2tree"
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
 
 ##calculate the average pattern in case a pattern has more than 1 sequence
 def avPattern(patternfile, outpatternfile):
@@ -298,9 +304,10 @@ def sankoff(aln2score,inputtree,outputtree):
                 labnscore2 = [] #store labels with scores for child2
                 for vp in unique_pids:
                     #print(vp)
-                    if(vp == xlab):
+                    #DONT DO THE FOLLOWING:
+                    #if(vp == xlab):
                         #skip xlab for internal nodes
-                        continue
+                        #continue
                     vid = unique_pids.index(vp)
                     c1score = Matrix[c1id][vid]+aln2score[(up,vp)]
                     labnscore1.append((vp,c1score))
@@ -317,6 +324,12 @@ def sankoff(aln2score,inputtree,outputtree):
                 #print(f'up {up} at {curid} min1 {min1} min2 {min2}')
                 curscore = round(min1+min2,2)
                 Matrix[nid][uid] = curscore
+                #if(node.is_root()):
+                    #eprint(Matrix[c1id])
+                    #eprint(Matrix[c2id])
+                    #eprint(curscore)
+                    #eprint(nid)
+                    #eprint(up)
     #DP matrix dpm is filled, do backtracking to find the optimal solution for the complete tree
 #    print("forward step done\n")
 #    upstr = ' '.join(unique_pids)
@@ -331,12 +344,14 @@ def sankoff(aln2score,inputtree,outputtree):
     nodename2update = dict()
     rootscore = 0
     rootlabel = ""
+#    eprint(Matrix)
     for node in pretree.preorder():
         nid = nodenames.index(node.name)
         if(node.is_root()):
             minpid = len(unique_pids)+2
-            minscore = maxval
-            for t in range(len(Matrix[nid])):
+            minscore = maxval*10
+            #eprint(Matrix[nid])
+            for t in range(len(unique_pids)):
                 cursc = Matrix[nid][t]
                 if(cursc < minscore):
                     minpid = t
